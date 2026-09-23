@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-23T15:21:50.384Z",
+  "updatedAt": "2026-09-23T15:25:31.783Z",
   "posts": [
     {
       "id": "demo-1",
@@ -22,7 +22,7 @@
       "id": "demo-2",
       "slug": "51-mcu-first-led",
       "title": "51 单片机第一课：点亮一个 LED 的完整清单",
-      "excerpt": "不谈寄存器原理，只给能跑的东西：接线、烧录、预期现象、失败排查。普中 HC6800-ES V2.0 + STC89C52 实测。",
+      "excerpt": "一个普通大一新生的普中 HC6800-ES V2.0 + STC89C52 实测，功能是很强大，但终究不适合入门。",
       "tags": [
         "嵌入式",
         "51 单片机",
@@ -32,8 +32,8 @@
       "status": "published",
       "pinned": false,
       "createdAt": "2026-09-15T14:00:00+08:00",
-      "updatedAt": "2026-09-18T09:10:00+08:00",
-      "body": "# 先看结果\n\n目标：让板子上的 **LED 模块**以大约 0.5 秒的节奏闪烁。做完这一步，你就验证了「这套工具链是通的」。\n\n## 你需要的三样东西\n\n| 东西 | 说明 |\n| --- | --- |\n| Keil uVision | 写代码 + 生成 `.hex` |\n| STC-ISP | 把 `.hex` 烧进芯片 |\n| 开发板 + USB 线 | 普中 HC6800-ES V2.0 |\n\n## 接线\n\n- 用**排线**把 LED 模块（`JP`）接到单片机的 `P2` 口，注意 `VCC` 对 `VCC`、`GND` 对 `GND`\n- 如果手里只有杜邦线，就一根一根接：`P2.0 → D1`\n\n## 最小可跑的代码\n\n```c\n#include <REGX52.H>\n#include <INTRINS.H>\n\nvoid Delay500ms(void){\n    unsigned char i, j, k;\n    _nop_();\n    i = 4; j = 129; k = 119;\n    do { do { while (--k); } while (--j); } while (--i);\n}\n\nvoid main(void){\n    while (1) {\n        P2 = 0xFE;   // 1111 1110 → 只点亮 D1\n        Delay500ms();\n        P2 = 0xFF;   // 全灭\n        Delay500ms();\n    }\n}\n```\n\n## 烧录步骤（照做即可）\n\n1. Keil 里 `Options for Target → Output → 勾选 Create HEX File`，然后 Rebuild\n2. 打开 STC-ISP，芯片型号选 **STC89C52RC**\n3. 串口号选带 `USB-SERIAL CH340` 的那个\n4. 打开程序文件，选刚生成的 `.hex`\n5. **先点下载，再给板子上电**（这一步顺序不能反）\n\n## 预期现象\n\n最左边那颗 LED 开始以约 0.5 秒的节奏闪烁。\n\n## 不亮怎么办\n\n- 排线方向反了 → 换一头试试\n- 跳线帽没接 → LED 模块的使能跳线要短接\n- 串口识别不到 → 换 USB 口，或装 CH340 驱动\n- 一直提示「正在检测目标单片机」→ 断电后重新点下载再上电\n\n> 一句话总结：嵌入式入门最大的坑不是代码，是**接线和烧录顺序**。"
+      "updatedAt": "2026-09-23T15:25:31.783Z",
+      "body": "# 第一个程序\n\n功能：让板子上的 **LED 模块**以大约 0.5 秒的节奏闪烁。做完这一步就能验证「这套工具链是通的」。\n\n## 玩转单片机三板斧\n\n| 东西 | 说明 |\n| --- | --- |\n| Keil uVision | 写代码 + 生成 `.hex` |\n| STC-ISP | 把 `.hex` 烧进芯片 |\n| 开发板 + USB 线 | 普中 HC6800-ES V2.0 |\n\n## 接线\n\n- 用**排线**把 LED 模块（`JP`）接到单片机的 `P2` 口，注意 `VCC` 对 `VCC`、`GND` 对 `GND`\n- 如果手里只有杜邦线，就一根一根接：`P2.0 → D1`\n\n## 最小可跑的代码\n\n```c\n#include <REGX52.H>\n#include <INTRINS.H>\n\nvoid Delay500ms(void){\n    unsigned char i, j, k;\n    _nop_();\n    i = 4; j = 129; k = 119;\n    do { do { while (--k); } while (--j); } while (--i);\n}\n\nvoid main(void){\n    while (1) {\n        P2 = 0xFE;   // 1111 1110 → 只点亮 D1\n        Delay500ms();\n        P2 = 0xFF;   // 全灭\n        Delay500ms();\n    }\n}\n```\n\n## 烧录步骤（照做即可）\n\n1. Keil 里 `Options for Target → Output → 勾选 Create HEX File`，然后 Rebuild\n2. 打开 STC-ISP，芯片型号选 **STC89C52RC**\n3. 串口号选带 `USB-SERIAL CH340` 的那个\n4. 打开程序文件，选刚生成的 `.hex`\n5. **先点下载，再给板子上电**\n\n## 预期现象\n\n最左边那颗 LED 开始以约 0.5 秒的节奏闪烁。\n\n## 不亮怎么办\n\n- 排线方向反了 → 换一头试试\n- 跳线帽没接 → LED 模块的使能跳线要短接\n- 串口识别不到 → 换 USB 口，或装 CH340 驱动\n- 一直提示「正在检测目标单片机」→ 断电后重新点下载再上电\n\n> 总结：嵌入式入门最大的坑不是代码，毕竟AI可以帮忙写，真正的问题其实是**接线和烧录**。"
     },
     {
       "id": "demo-3",
