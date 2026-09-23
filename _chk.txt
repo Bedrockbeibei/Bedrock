@@ -1,8 +1,0 @@
-OK   assets\js\github.js
-
-OK   assets\js\editor.js
-
-OK   assets\js\app.js
-
-OK   assets\js\config.js
-
