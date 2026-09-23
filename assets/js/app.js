@@ -56,7 +56,7 @@
   function afterRender(head, r) {
     global.scrollTo({ top: 0, behavior: 'auto' });
     ui.highlight(view);
-    injectGiscus();
+    injectGiscus(head === 'post' ? (r.segs[1] || '') : '');
     injectToc();
     if (head === 'posts') {
       var input = document.getElementById('search-input');
@@ -86,8 +86,10 @@
     body.parentNode.insertBefore(box, body);
   }
 
-  /* Giscus 评论（需动态注入脚本） */
-  function injectGiscus() {
+  /* Giscus 评论（需动态注入脚本）
+     本站是 hash 路由，pathname 对每篇文章都一样，所以必须用 specific + term=<slug>，
+     否则所有文章会共用同一条 discussion（评论串篇）。 */
+  function injectGiscus(slug) {
     var g = CFG.giscus || {};
     var host = document.querySelector('.giscus');
     if (!host || !g.enabled || !g.repoId || !g.categoryId) return;
@@ -104,7 +106,8 @@
       'data-repo-id': g.repoId,
       'data-category': g.category || 'Announcements',
       'data-category-id': g.categoryId,
-      'data-mapping': g.mapping || 'pathname',
+      'data-mapping': 'specific',
+      'data-term': slug || 'index',
       'data-strict': '0',
       'data-reactions-enabled': '1',
       'data-emit-metadata': '0',

@@ -325,13 +325,12 @@
 
   function commentsBlock(slug) {
     var g = CFG.giscus || {};
-    var out = '';
-    if (g.enabled && g.repoId && g.categoryId) {
-      // Giscus 脚本由 app.js 在挂载后动态注入（innerHTML 里的 script 不会执行）
-      out += '<div class="giscus"></div>';
-    } else {
-      out += '<div class="text-xs font-bold opacity-50 mb-4">评论保存在本地浏览器</div>';
-    }
+    var giscusOn = !!(g.enabled && g.repoId && g.categoryId);
+
+    // 公开评论已启用：只显示 Giscus，不再显示本地评论框
+    if (giscusOn) return '<div class="giscus"></div>';
+
+    var out = '<div class="text-xs font-bold opacity-50 mb-4">评论保存在本地浏览器</div>';
 
     if (CFG.localComment !== false) {
       var list = store.getComments(slug);
