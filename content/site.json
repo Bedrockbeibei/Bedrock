@@ -5,7 +5,7 @@
   "slogan": "BEDROCK // 沉潜个人博客",
   "author": "沉潜",
   "avatar": "https://api.dicebear.com/7.x/notionists/svg?seed=bedrock&backgroundColor=A3E635",
-  "bio": "北京理工大学睿信书院 · 信息科学技术类 2026 级。\n地基打得越深，楼才能盖得越高。这里记录我从零开始啃 AI / 数据科学 / 嵌入式的全过程。",
+  "bio": "北京理工大学睿信书院 · 信息科学技术类 2026 级。\n地基打得越深，楼才能盖得越高。这里记录我从零开始啃 AI 的全过程。",
   "location": "北京",
   "email": "you@example.com",
   "socials": [
@@ -17,7 +17,7 @@
     {
       "name": "邮箱",
       "icon": "ri-mail-line",
-      "url": "mailto:you@example.com"
+      "url": "mailto:3314151596@qq.com"
     }
   ],
   "badges": [
@@ -67,13 +67,13 @@
   ],
   "links": [
     {
-      "name": "示例友链 A",
-      "desc": "一个很有意思的技术博客",
-      "url": "https://example.com"
+      "name": "个人简历",
+      "desc": "一个很有意思但粗糙的简历",
+      "url": "https://zmhvita.netlify.app/"
     },
     {
-      "name": "示例友链 B",
-      "desc": "记录折腾的日常",
+      "name": "示例友链",
+      "desc": "并没有任何内容",
       "url": "https://example.com"
     }
   ],
