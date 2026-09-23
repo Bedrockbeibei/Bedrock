@@ -147,10 +147,6 @@
 
       <!-- PAT -->
       <div class="login-pane" data-pane="pat">
-        <div class="nb-note !bg-sky mb-3">
-          <i class="ri-information-line"></i>
-          <span>零后端方案。在 GitHub → Settings → Developer settings → Personal access tokens → <b>Fine-grained token</b>，只勾选本仓库的 <b>Contents: Read and write</b>，粘贴到下面即可。Token 只存在你自己的浏览器里。</span>
-        </div>
         <label class="block text-sm font-black mb-1">GitHub Personal Access Token</label>
         <input id="login-pat" type="password" class="nb-input w-full mb-2" placeholder="github_pat_xxxxxxxxxxxx">
         <label class="flex items-center gap-2 text-sm font-bold mb-3">
@@ -162,19 +158,11 @@
 
       <!-- OAuth -->
       <div class="login-pane hidden" data-pane="oauth">
-        <div class="nb-note !bg-sun mb-3">
-          <i class="ri-lightbulb-line"></i>
-          <span>需要你在 <code>assets/js/config.js</code> 里填 <b>oauth.clientId</b> 和 <b>oauth.workerUrl</b>（Cloudflare Worker，代码已放在 <code>workers/oauth-proxy.js</code>）。适合不想手抄 Token 的日常使用。</span>
-        </div>
         <button id="do-login-oauth" class="nb-btn w-full !justify-center !bg-violet"><i class="ri-github-fill"></i> 用 GitHub 账号授权</button>
       </div>
 
       <!-- 访客 -->
       <div class="login-pane hidden" data-pane="guest">
-        <div class="nb-note !bg-mint mb-3">
-          <i class="ri-user-smile-line"></i>
-          <span>不登录 GitHub 也能留言。昵称保存在本地浏览器，用于评论和留言板署名。</span>
-        </div>
         <label class="block text-sm font-black mb-1">你的昵称</label>
         <input id="login-nick" class="nb-input w-full mb-3" placeholder="比如：路过的同学">
         <button id="do-login-guest" class="nb-btn w-full !justify-center !bg-sky"><i class="ri-chat-3-line"></i> 以访客身份继续</button>
