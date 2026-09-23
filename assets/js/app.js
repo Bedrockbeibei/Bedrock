@@ -73,12 +73,15 @@
     var body = document.getElementById('post-body');
     if (!body) return;
     var hs = body.querySelectorAll('h2, h3');
-    if (hs.length < 3) return;
+    if (hs.length < 2) return;
     var items = '';
     Array.prototype.forEach.call(hs, function (h, i) {
       if (!h.id) h.id = 'sec-' + i;
-      items += '<a href="#' + h.id + '" class="block text-sm font-bold py-1 hover:bg-sun hover:pl-1 transition-all ' +
-        (h.tagName === 'H3' ? 'pl-3 text-xs opacity-80' : '') + '">' + ui.esc(h.textContent) + '</a>';
+      // 顶栏是浮动的，给标题留出让位，避免跳过去被顶栏盖住
+      h.style.scrollMarginTop = '96px';
+      // 不能用 href="#id"：本站路由也用 hash，会被当成换页面跳到 404
+      items += '<button type="button" data-action="goto-sec" data-target="' + h.id + '" class="toc-item block w-full text-left text-sm font-bold py-1 px-1 hover:bg-sun transition-all ' +
+        (h.tagName === 'H3' ? 'pl-3 text-xs opacity-80' : '') + '">' + ui.esc(h.textContent) + '</button>';
     });
     var box = document.createElement('aside');
     box.className = 'nb-card !bg-white p-4 mb-6';
@@ -260,6 +263,16 @@
       switch (act) {
         case 'open-post':
           global.location.hash = '#/post/' + slug; break;
+        case 'goto-sec': {
+          var target = document.getElementById(el.getAttribute('data-target'));
+          if (target) {
+            var y = target.getBoundingClientRect().top + global.scrollY - 84; // 84 ≈ 顶栏高度 + 留白
+            global.scrollTo({ top: y < 0 ? 0 : y, behavior: 'smooth' });
+            Array.prototype.forEach.call(document.querySelectorAll('.toc-item'), function (b) { b.classList.remove('bg-sun'); });
+            el.classList.add('bg-sun');
+          }
+          break;
+        }
         case 'do-search':
           doSearch(); break;
         case 'new-post':
@@ -355,6 +368,14 @@
     document.title = (site.title || 'Bedrock') + ' · 个人博客';
   }
 
+  /* 作者身份下：本地临时副本在确认线上已生效后自动清除，避免本地和仓库长期不一致 */
+  function autoClearOverlay() {
+    if (!store.isAuthor() || !store.state.deploying) return;
+    setTimeout(function () {
+      store.checkDeployed().then(function (done) { if (done) render(); }).catch(function () {});
+    }, 40000);
+  }
+
   /* ================= 启动 ================= */
   // site.json 里的评论配置优先于 config.js —— 这样开启 Giscus 不需要改代码
   function applySiteToConfig() {
@@ -388,7 +409,7 @@
 
     // 先渲染一版（用缓存数据），再从远端刷新
     render();
-    reload().then(function () { syncAuthUI(); });
+    reload().then(function () { syncAuthUI(); autoClearOverlay(); });
   }
 
   global.Bedrock = global.Bedrock || {};
