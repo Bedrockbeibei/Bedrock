@@ -1,14 +1,13 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-23T12:40:25.532Z",
+  "updatedAt": "2026-09-23T15:21:50.384Z",
   "posts": [
     {
       "id": "demo-1",
       "slug": "why-bedrock-on-github",
       "title": "为什么我把博客建在 GitHub 上，而不是买服务器",
-      "excerpt": "零成本、零运维、文章就是数据文件。这篇讲清楚这套「静态站 + GitHub 当后端」的思路是怎么跑通的。",
+      "excerpt": "零成本、零运维、文章就是数据文件。",
       "tags": [
-        "折腾",
         "GitHub Pages",
         "前端"
       ],
@@ -16,8 +15,8 @@
       "status": "published",
       "pinned": true,
       "createdAt": "2026-09-20T10:00:00+08:00",
-      "updatedAt": "2026-09-22T21:30:00+08:00",
-      "body": "# 结论先说\n\n博客 = 一堆**纯静态文件** + 一个 **JSON 数据文件**。GitHub Pages 负责渲染，GitHub API 负责写入。中间没有任何服务器。\n\n## 这套方案解决什么\n\n- **不用重装环境**：手机上打开网页，登录后就能写文章\n- **不用改代码**：文章存在 `content/posts.json`，我只改数据，不改 HTML\n- **不花钱**：Pages 免费，CDN 免费，API 免费\n- **别人评论**：走 Giscus，评论落在仓库的 Discussions 里，永久保存\n\n## 写入是怎么发生的\n\n1. 我在网页上用 GitHub 身份登录（Token 或 OAuth）\n2. 写完点「保存到 GitHub」\n3. 前端调用 Contents API，把新的 posts.json 提交成一个 commit\n4. Pages 检测到仓库变化，1–2 分钟后自动重新部署\n\n```js\nPUT /repos/{owner}/{repo}/contents/content/posts.json\n{ message: \"post: 文章标题\", content: base64(json), sha: 上一个版本的sha }\n```\n\n> 关键点：`sha` 不能错。它代表你要覆盖的文件版本，错了会 409 冲突——这是 GitHub 防止多人同时改同一个文件的机制。\n\n## 代价是什么\n\n诚实地说：**部署有延迟**。写完不是立刻全网可见，要等 Pages 构建。所以本站做了「本地覆盖层」——保存后你自己的浏览器立刻能看到新文章，其他人等 1–2 分钟。\n\n下一篇打算写：怎么给这个站接上真实的访问统计。"
+      "updatedAt": "2026-09-23T15:21:50.383Z",
+      "body": "# 先说结论\n\n博客 = 一堆**纯静态文件** + 一个 **JSON 数据文件**。GitHub Pages 负责渲染，GitHub API 负责写入。中间没有任何服务器。\n\n## 这套方案的好处\n\n- **不用重装环境**：手机上打开网页，登录后就能写文章\n- **不用改代码**：文章存在 `content/posts.json`，我只改数据，不改 HTML\n- **不花钱**：Pages 免费，CDN 免费，API 免费\n- **别人评论**：走 Giscus，评论落在仓库的 Discussions 里，永久保存\n\n## 写入是怎么发生的\n\n1. 我在网页上用 GitHub 身份登录（Token 或 OAuth）\n2. 写完点「保存到 GitHub」\n3. 前端调用 Contents API，把新的 posts.json 提交成一个 commit\n4. Pages 检测到仓库变化，1–2 分钟后自动重新部署\n\n```js\nPUT /repos/{owner}/{repo}/contents/content/posts.json\n{ message: \"post: 文章标题\", content: base64(json), sha: 上一个版本的sha }\n```\n\n> 关键点：`sha` 不能错。它代表你要覆盖的文件版本，错了会 409 冲突——这是 GitHub 防止多人同时改同一个文件的机制。\n\n## 代价是什么\n\nTo be honest：**部署有延迟**。写完不是立刻全网可见，要等 Pages 构建。所以本站做了「本地覆盖层」——保存后你自己的浏览器立刻能看到新文章，而其他人则需要等 1–2 分钟。\n\n下一篇打算写：怎么给这个站接上真实的访问统计。（后会无期）"
     },
     {
       "id": "demo-2",
