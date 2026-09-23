@@ -4,8 +4,8 @@
    ========================================================= */
 window.BEDROCK_CONFIG = {
   /* ---------- 1. GitHub 仓库（必填） ---------- */
-  owner:  'YOUR_GITHUB_USERNAME',   // 你的 GitHub 用户名，例如 'chenqian'
-  repo:   'bedrock-blog',           // 仓库名
+  owner:  'Bedrockbeibei',   // 你的 GitHub 用户名，例如 'chenqian'
+  repo:   'Bedrock',           // 仓库名
   branch: 'main',                   // 分支：main 或 master
 
   /* ---------- 2. 数据文件位置（一般不用改） ---------- */
@@ -21,7 +21,7 @@ window.BEDROCK_CONFIG = {
     // 头像也可以换成自己的图：'assets/avatar.png'
     bio: '北京理工大学睿信书院 · 信息科学技术类 2026 级。\n地基打得越深，楼才能盖得越高。这里记录我从零开始啃 AI / 数据科学 / 嵌入式的全过程。',
     location: '北京',
-    email: 'you@example.com',
+    email: '3314151596@qq.com',
     socials: [
       { name: 'GitHub',  icon: 'ri-github-fill',   url: 'https://github.com/YOUR_GITHUB_USERNAME' },
       { name: 'Bilibili',icon: 'ri-bilibili-fill', url: 'https://space.bilibili.com/' },
