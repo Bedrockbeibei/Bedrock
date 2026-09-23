@@ -330,7 +330,7 @@
       // Giscus 脚本由 app.js 在挂载后动态注入（innerHTML 里的 script 不会执行）
       out += '<div class="giscus"></div>';
     } else {
-      out += '<div class="nb-note !bg-sun mb-5"><i class="ri-information-line"></i><span>评论区当前为<b>本地模式</b>：留言只保存在你自己的浏览器里。想让所有人都能看到并互相回复，在 <code>config.js</code> 里开启 Giscus（基于 GitHub Discussions，免费、永久保存）。</span></div>';
+      out += '<div class="text-xs font-bold opacity-50 mb-4">评论保存在本地浏览器</div>';
     }
 
     if (CFG.localComment !== false) {
@@ -448,7 +448,6 @@
           '<ul class="text-sm font-bold space-y-1">' +
             '<li>文章：' + posts.length + ' 篇</li>' +
             '<li>标签：' + store.allTags().length + ' 个</li>' +
-            '<li>数据源：' + (store.state.source === 'demo' ? '内置示例' : '仓库文件') + '</li>' +
           '</ul>' +
         '</div>' +
       '</aside>' +
@@ -472,7 +471,6 @@
           '<input id="gb-contact" class="nb-input mb-2 !text-sm" placeholder="联系方式（可选，如邮箱/主页）">' +
           '<textarea id="gb-content" class="nb-input h-28 !text-sm mb-3" placeholder="留言内容…"></textarea>' +
           '<button class="nb-btn !bg-mint w-full !justify-center" data-action="submit-guest"><i class="ri-send-plane-fill"></i> 贴上去</button>' +
-          (CFG.giscus && CFG.giscus.enabled ? '' : '<div class="nb-note !bg-sky mt-3 !text-xs"><i class="ri-information-line"></i><span>留言保存在本地浏览器。开启 Giscus 后可让留言公开持久化。</span></div>') +
         '</div>' +
         '<div class="space-y-4">' +
           (list.length ? list.map(function (g) {

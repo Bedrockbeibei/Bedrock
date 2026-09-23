@@ -365,7 +365,6 @@
       return store.loadAll(true);
     }).then(function () { render(); initFooter(); });
   }
-
   function boot() {
     view = document.getElementById('view');
     // 404.html 跳转过来的，恢复原始路径为 hash 路由
@@ -384,14 +383,9 @@
     syncAuthUI();
     initFooter();
 
-    // 先渲染一版（用内置/缓存数据），再从远端刷新
+    // 先渲染一版（用缓存数据），再从远端刷新
     render();
-    reload().then(function () {
-      syncAuthUI();
-      if (store.state.source === 'demo' && (CFG.owner === 'YOUR_GITHUB_USERNAME' || !CFG.owner)) {
-        ui.toast('当前是内置示例数据，改 config.js 里的 owner/repo 即可接入你的仓库', 'info');
-      }
-    });
+    reload().then(function () { syncAuthUI(); });
   }
 
   global.Bedrock = global.Bedrock || {};

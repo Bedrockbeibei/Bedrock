@@ -41,7 +41,7 @@
         store.state.deploying ? '#FDE047' : '#A3E635', store.state.deploying ? 'ri-time-line' : 'ri-check-double-line') +
     '</div>' +
 
-    (author ? '' : '<div class="nb-note !bg-coral mb-6"><i class="ri-lock-line"></i><span><b>当前是访客身份，只能浏览。</b>点右上角「登录」，用 GitHub Token 或 OAuth 以作者身份登录，才能在线写文章。（登录名必须与 config.js 里的 owner 一致）</span></div>') +
+    (author ? '' : '<div class="nb-note !bg-coral mb-6"><i class="ri-lock-line"></i><span><b>当前是访客身份，只能浏览。</b>点右上角「登录」，用站长的 GitHub 账号登录后才能在线写文章。</span></div>') +
 
     (store.state.deploying ? '<div class="nb-note !bg-sun mb-6"><i class="ri-time-line"></i><span>有改动正在等待 GitHub Pages 重建（通常 1–2 分钟）。你自己的浏览器里已经能看到最新内容。重建完成后点上面的「检查部署」清除提示。</span></div>' : '') +
 

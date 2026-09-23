@@ -96,3 +96,25 @@ window.BEDROCK_CONFIG = {
   /* ---------- 6. 其它 ---------- */
   pageSize: 8             // 文章列表每页条数
 };
+
+/* =========================================================
+   自动识别：部署后 owner / repo 直接从网址推断，
+   所以上面那三行即使忘了改，也能正常工作。
+   本地用 http://localhost 预览时不会触发，保持原样。
+   ========================================================= */
+(function () {
+  try {
+    var C = window.BEDROCK_CONFIG;
+    var host = location.hostname;
+    var port = location.port;
+    if (!/github\.io$/i.test(host)) return;          // 只在 GitHub Pages 上生效
+    if (!C.owner || C.owner === 'YOUR_GITHUB_USERNAME') {
+      C.owner = host.split('.')[0];                  // bedrockbeibei.github.io → bedrockbeibei
+    }
+    var seg = location.pathname.split('/').filter(Boolean)[0] || '';
+    if (seg && (!C.repo || C.repo === 'bedrock-blog')) {
+      C.repo = seg;                                  // /Bedrock/ → Bedrock
+    }
+    void port;
+  } catch (e) {}
+})();
