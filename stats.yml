@@ -1,0 +1,52 @@
+name: 同步访问统计
+
+# 每 6 小时从 GoatCounter 拉一次数据，写回 content/stats.json。
+# 也可以手动触发：仓库页面 → Actions → 同步访问统计 → Run workflow
+#
+# 时间用的是 UTC。cron "23 */6 * * *" = 每天的 0:23 / 6:23 / 12:23 / 18:23（UTC）
+# 换算成北京时间要 +8 小时：8:23 / 14:23 / 20:23 / 2:23
+
+on:
+  schedule:
+    - cron: '23 */6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 取出代码
+        uses: actions/checkout@v4
+
+      - name: 准备 Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: 拉取统计数据
+        env:
+          GC_SITE: ${{ secrets.GC_SITE }}
+          GC_API_KEY: ${{ secrets.GC_API_KEY }}
+        run: |
+          if [ -z "$GC_SITE" ] || [ -z "$GC_API_KEY" ]; then
+            echo "::warning::还没配置 GC_SITE / GC_API_KEY，跳过本次同步。到 Settings → Secrets and variables → Actions 里加上就生效了。"
+            exit 0
+          fi
+          node tools/fetch-stats.js
+
+      - name: 有变化就提交回去
+        run: |
+          git config user.name "bedrock-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if ! git diff --quiet -- content/stats.json; then
+            git add content/stats.json
+            git commit -m "chore(stats): 同步访问统计 $(date -u +'%Y-%m-%d %H:%M UTC')"
+            git pull --rebase origin main
+            git push origin HEAD:main
+            echo "✓ 统计数据已更新"
+          else
+            echo "· 数据没有变化，不提交"
+          fi
