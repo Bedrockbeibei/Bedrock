@@ -21,8 +21,26 @@ const win = dom.window;
 win.fetch = (u, o) => fetch(new URL(String(u), BASE), o);
 win.addEventListener('error', e => { if (!IGNORE.test(String(e.message))) errors.push('window.onerror: ' + e.message); });
 
+<<<<<<< HEAD
 // 手动注入本地脚本（CDN 不加载，marked/DOMPurify 走 fallback）
 ['config', 'github', 'store', 'ui', 'editor', 'app'].forEach(name => {
+=======
+// 极简 marked 替身：CDN 不加载时，ui.md() 只能输出纯文本，正文里就没有 h2/h3，
+// 目录测试会变成假阳性。这里补一个只认 # / ## / ### 的最小实现。
+win.marked = {
+  setOptions() {},
+  parse(t) {
+    return String(t || '').split(/\n{2,}/).map(block => {
+      const m = /^(#{1,6})\s+(.*)$/.exec(block.trim());
+      if (m) { const lv = m[1].length; return '<h' + lv + '>' + m[2] + '</h' + lv + '>'; }
+      return '<p>' + block.replace(/\n/g, '<br>') + '</p>';
+    }).join('\n');
+  }
+};
+
+// 手动注入本地脚本（CDN 不加载，DOMPurify 走 fallback）
+['config', 'github', 'store', 'analytics', 'ui', 'editor', 'app'].forEach(name => {
+>>>>>>> 1acd59d (add local blog files)
   const code = fs.readFileSync(path.join(dir, 'assets', 'js', name + '.js'), 'utf8');
   try { win.eval(code); } catch (e) { errors.push('eval ' + name + '.js: ' + e.message); }
 });
@@ -61,6 +79,7 @@ waitLoaded(() => {
   out.push('[boot] 文章数 = ' + (B ? B.store.state.posts.length : '-'));
   out.push('[boot] 是否作者 = ' + (B ? B.store.isAuthor() : '-'));
 
+<<<<<<< HEAD
   function startRoutes() { next(); }
   let i = 0;
   const next = () => {
@@ -107,6 +126,14 @@ waitLoaded(() => {
       }, 300);
       return;
     }
+=======
+  const wait = ms => new Promise(r => setTimeout(r, ms));
+
+  function startRoutes() { next(); }
+  let i = 0;
+  const next = () => {
+    if (i >= routes.length) { runInteractions(); return; }
+>>>>>>> 1acd59d (add local blog files)
     const [hash, keyword] = routes[i++];
     win.location.hash = hash;
     setTimeout(() => {
@@ -116,6 +143,72 @@ waitLoaded(() => {
     }, 200);
   };
 
+<<<<<<< HEAD
+=======
+  async function runInteractions() {
+    const d = win.document;
+
+    // 1) 留言板
+    win.location.hash = '#/guestbook'; await wait(300);
+    try {
+      d.getElementById('gb-name').value = '测试同学';
+      d.getElementById('gb-content').value = '冒烟测试留言';
+      d.querySelector('[data-action="submit-guest"]').click();
+      out.push((html().indexOf('冒烟测试留言') >= 0 ? '✓ ' : '✗ ') + '留言板提交与渲染');
+    } catch (e) { out.push('✗ 留言板交互: ' + e.message); }
+
+    // 2) 本地评论（Giscus 未启用时）
+    win.location.hash = '#/post/why-bedrock-on-github'; await wait(320);
+    try {
+      d.getElementById('cmt-name').value = '测试同学';
+      d.getElementById('cmt-content').value = '冒烟测试评论';
+      d.querySelector('[data-action="submit-comment"]').click();
+      out.push((html().indexOf('冒烟测试评论') >= 0 ? '✓ ' : '✗ ') + '文章评论提交与渲染');
+    } catch (e) { out.push('· 评论交互跳过（可能已启用 Giscus）'); }
+
+    // 3) 目录跳转：点击后不能把 hash 改掉（否则会跳 404）
+    win.location.hash = '#/post/51-mcu-first-led'; await wait(320);
+    try {
+      const items = d.querySelectorAll('.toc-item');
+      out.push((items.length > 0 ? '✓ ' : '✗ ') + '文章目录生成（' + items.length + ' 项）');
+      (items[1] || items[0]).click();
+      await wait(300);
+      out.push((win.location.hash.indexOf('#/post/51-mcu-first-led') >= 0 ? '✓ ' : '✗ ') + '点目录不会误跳 404');
+    } catch (e) { out.push('✗ 目录交互: ' + e.message); }
+
+    // 4) 搜索
+    win.location.hash = '#/posts'; await wait(320);
+    try {
+      d.getElementById('search-input').value = '单片机';
+      d.querySelector('[data-action="do-search"]').click();
+      await wait(400);
+      out.push((html().indexOf('单片机') >= 0 ? '✓ ' : '✗ ') + '搜索筛选');
+    } catch (e) { out.push('✗ 搜索: ' + e.message); }
+
+    // 5) 访问统计：没有 content/stats.json 时必须整块沉默，不能露出残缺 UI
+    win.location.hash = '#/'; await wait(320);
+    out.push((html().indexOf('站点数据') < 0 ? '✓ ' : '✗ ') + '无统计数据时首页不显示「站点数据」区块');
+
+    // 6) 创作台里的统计设置卡片
+    win.location.hash = '#/admin'; await wait(360);
+    try {
+      const code = d.getElementById('st-code');
+      const btn = d.querySelector('[data-action="check-analytics"]');
+      out.push((code && btn ? '✓ ' : '✗ ') + '访问统计设置卡片渲染');
+      btn.click();
+      await wait(2500);
+      const txt = ((d.getElementById('stats-result') || {}).textContent || '').replace(/\s+/g, ' ').trim();
+      out.push((txt.length > 0 ? '✓ ' : '✗ ') + '「检查数据是否回流」有反馈（' + txt.slice(0, 24) + '…）');
+    } catch (e) { out.push('✗ 统计卡片: ' + e.message); }
+
+    out.push('');
+    out.push(errors.length ? ('!! 运行时错误 ' + errors.length + ' 条:\n' + errors.slice(0, 15).join('\n')) : '✓ 无 JS 运行时错误');
+    fs.writeFileSync(path.join(dir, '_smoke_result.txt'), out.join('\n'), 'utf8');
+    win.close();
+    process.exit(0);
+  }
+
+>>>>>>> 1acd59d (add local blog files)
   // Giscus 评论设置卡片（未登录时应给出明确的下一步指引）
   win.location.hash = '#/admin';
   setTimeout(() => {

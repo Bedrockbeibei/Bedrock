@@ -124,7 +124,89 @@ giscus: {
 
 ---
 
+<<<<<<< HEAD
 ## 四、本地预览
+=======
+## 四、访问统计怎么开（真实 PV，不是装饰）
+
+本站的方案：**GoatCounter 采集 → GitHub Actions 定时拉回 → 写进 `content/stats.json` → 网页读它**。
+
+选它的三个理由：免费且没有月活限制、不用挂 Cookie 同意横幅、**数据最终落在你自己的仓库里**而不是躺在别人服务器上。
+
+几个常见选择的对比：
+
+| 方案 | 优点 | 缺点 | 什么时候选 |
+| --- | --- | --- | --- |
+| **GoatCounter** | 免费、无 Cookie、可导出、数据回自己仓库 | 服务器在欧盟，偶尔慢一点 | **默认推荐** |
+| 不蒜子 | 国内 CDN 快、不用注册 | 数据在对方服务器；单页应用下计数不准 | 只想看个热闹 |
+| Google Analytics | 功能最强 | 国内加载常被卡住、必须挂 Cookie 同意 | 面向海外读者 |
+| 百度统计 | 国内快、功能全 | 脚本重、要挂同意声明 | 已备案的商业站 |
+
+### 为什么要绕这一圈，不直接在网页里读 API？
+
+因为读统计数据的 API 必须带**密钥**，而网页上的任何东西按 F12 都能看见——那等于把家门钥匙插在锁孔上。所以分工是这样：
+
+| 环节 | 在哪里跑 | 有没有密钥 |
+| --- | --- | --- |
+| 上报一次浏览 | 访客的浏览器 | 不需要，用的是公开的 count.js |
+| 拉取汇总数据 | GitHub Actions（服务器） | 有，存在仓库 Secret 里 |
+| 展示这些数据 | 访客的浏览器 | 没有，读的只是一个普通 JSON |
+
+### 四步配好
+
+**第 1 步：注册 GoatCounter，拿站点代号**
+
+1. 打开 https://www.goatcounter.com → 右上角 `Sign up`，邮箱注册
+2. 登录后点 `Add site`，网址填你的博客地址，一路下一步
+3. **关键**：记下它给你的地址，形如 `https://bedrock.goatcounter.com` —— 中间那段 **`bedrock`** 就是站点代号
+
+**第 2 步：拿 API 密钥**
+
+站点左侧菜单 `Settings → API`（有的版本在右上角头像菜单里）→ `Create new API key`，
+权限只勾 **`Read statistics`**（只读统计）就够，别多勾。复制那串字符，下一步马上要用。
+
+**第 3 步：把密钥藏进仓库**
+
+GitHub 仓库 → `Settings` → 左侧 `Secrets and variables` → `Actions` → `New repository secret`，加两条：
+
+| Name | Secret |
+| --- | --- |
+| `GC_SITE` | `bedrock` ← 第 1 步的站点代号 |
+| `GC_API_KEY` | 第 2 步复制的那串密钥 |
+
+Secret 保存之后就再也看不到明文了，只能覆盖——这正说明它真的藏住了。
+
+**第 4 步：上传定时任务，手动跑一次**
+
+1. 把本项目的 `.github/workflows/stats.yml` 传到仓库。
+   GitHub 网页上传时，在文件名框里**直接输入** `.github/workflows/stats.yml`，它会自动帮你建好两层目录。
+2. 仓库 `Actions` 页面 → 左侧点 `同步访问统计` → 右侧 `Run workflow` → 绿色的 Run
+3. 等半分钟左右，出现绿色对勾
+4. 回博客 → 右上角登录 → 创作台 → 拉到「访问统计」→ 点「检查数据是否回流」
+
+看到绿色区块「数据已回流」就通了。第一次通常是 0 次访问，因为还没人访问过。
+
+### 配好之后能看到什么
+
+- 首页最下方多一块「站点数据」：累计访问、最近 14 天柱状图、访客来自哪些地区、最受欢迎的文章
+- 每篇文章卡片右下角出现眼睛图标 + 浏览量
+- 首屏右侧「文章 / 标签 / 项目」三宫格下面，多一条累计访问
+
+默认的同步频率是**每 6 小时一次**（UTC 的 0:23 / 6:23 / 12:23 / 18:23）。想立刻更新，去 Actions 手动 Run 一次。
+
+### 常见问题
+
+| 现象 | 原因 | 怎么办 |
+| --- | --- | --- |
+| 一直显示「读不到统计文件」 | 定时任务还没跑成功 | Actions 页面看那条运行记录是不是红的 |
+| 文件有了但显示 0 次访问 | 链路通了，只是没采到浏览 | **注意：你自己本地预览的刷新是故意不计数的**（代码里屏蔽了，免得虚高）。用手机流量打开网址点两个页面，再等下一次同步 |
+| Actions 页面是空的 | workflow 没传上去，或 Actions 被关了 | Settings → Actions → General → 选 Allow all actions |
+| 想换回本地/不蒜子 | — | 创作台「访问统计」里改「服务商」，`busuanzi` 是国内备选 |
+
+---
+
+## 五、本地预览
+>>>>>>> 1acd59d (add local blog files)
 
 GitHub API 不允许从 `file://` 调用，所以别直接双击 `index.html`，起个本地服务：
 
@@ -138,7 +220,11 @@ python -m http.server 8000
 
 ---
 
+<<<<<<< HEAD
 ## 五、文件结构
+=======
+## 六、文件结构
+>>>>>>> 1acd59d (add local blog files)
 
 ```
 bedrock-blog/
@@ -146,25 +232,47 @@ bedrock-blog/
 ├── 404.html                # SPA 兜底
 ├── oauth.html              # OAuth 回调页
 ├── feed.json               # JSON Feed 订阅源（tools/gen-posts.js 生成）
+<<<<<<< HEAD
+=======
+├── .github/workflows/
+│   └── stats.yml           # 每 6 小时拉一次统计，写回 content/stats.json
+>>>>>>> 1acd59d (add local blog files)
 ├── assets/
 │   ├── css/style.css       # 新丑风设计系统：硬边框/硬投影/波点/贴纸/按压
 │   └── js/
 │       ├── config.js       # ★ 唯一需要你改的配置文件
 │       ├── github.js       # GitHub 认证 + Contents API 读写
 │       ├── store.js        # 文章/评论/留言数据层 + 本地覆盖层
+<<<<<<< HEAD
+=======
+│       ├── analytics.js    # 访问统计：上报浏览 + 读 content/stats.json
+>>>>>>> 1acd59d (add local blog files)
 │       ├── ui.js           # 各板块视图渲染
 │       ├── editor.js       # 创作台 + Markdown 编辑器
 │       └── app.js          # 路由 / 事件 / 初始化
 ├── content/
 │   ├── posts.json          # ★ 文章数据库（作者保存时会 commit 这个文件）
+<<<<<<< HEAD
 │   └── site.json           # 站点资料（昵称、简介、项目、友链）
 ├── tools/gen-posts.js      # 重新生成 posts.json / feed.json
+=======
+│   ├── site.json           # 站点资料（昵称、简介、项目、友链，评论/统计配置也写在这）
+│   └── stats.json          # 访问统计（由 Actions 定时写入，不用你管）
+├── tools/
+│   ├── gen-posts.js        # 重新生成 posts.json / feed.json
+│   ├── fetch-stats.js      # 拉 GoatCounter 数据（Actions 里跑，也可本地跑）
+│   └── smoke.js            # jsdom 冒烟测试
+>>>>>>> 1acd59d (add local blog files)
 └── workers/oauth-proxy.js  # Cloudflare Worker（OAuth 用，可选）
 ```
 
 ---
 
+<<<<<<< HEAD
 ## 六、设计规格（已实现）
+=======
+## 七、设计规格（已实现）
+>>>>>>> 1acd59d (add local blog files)
 
 | 要求 | 实现 |
 | --- | --- |
@@ -181,7 +289,11 @@ bedrock-blog/
 
 ---
 
+<<<<<<< HEAD
 ## 七、常见问题
+=======
+## 八、常见问题
+>>>>>>> 1acd59d (add local blog files)
 
 **Q：保存后别人看不到新文章？**
 A：GitHub Pages 有 1–2 分钟构建延迟。你自己的浏览器里因为有"本地覆盖层"会立刻显示。点创作台的「检查部署」可以确认线上是否就绪。

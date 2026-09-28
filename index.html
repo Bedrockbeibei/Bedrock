@@ -224,7 +224,11 @@
 <script>
 /* 按顺序加载本地脚本；带时间戳确保永远拿到最新版，不会被浏览器缓存卡住 */
 (function () {
+<<<<<<< HEAD
   var files = ['config', 'github', 'store', 'ui', 'editor', 'app'];
+=======
+  var files = ['config', 'github', 'store', 'analytics', 'ui', 'editor', 'app'];
+>>>>>>> 1acd59d (add local blog files)
   var i = 0;
   (function next() {
     if (i >= files.length) return;

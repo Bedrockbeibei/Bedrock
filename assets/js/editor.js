@@ -71,7 +71,11 @@
     '</div>' +
 
     /* ---------- 评论设置（Giscus） ---------- */
+<<<<<<< HEAD
     commentCard(site) +
+=======
+    commentCard(site) + statsCard() +
+>>>>>>> 1acd59d (add local blog files)
 
     /* ---------- 站点资料 ---------- */
     '<h2 class="font-display text-2xl mb-4">站点资料</h2>' +
@@ -147,6 +151,142 @@
     '</div>';
   }
 
+<<<<<<< HEAD
+=======
+  /* ================= 访问统计卡片 ================= */
+  function analyticsCfg() {
+    var base = Object.assign({}, CFG.analytics || {});
+    var fromSite = (store.state.site && store.state.site.analytics) || null;
+    return Object.assign(base, fromSite || {});
+  }
+
+  function statsCard() {
+    var cur = analyticsCfg();
+    var a = global.Bedrock && global.Bedrock.analytics ? global.Bedrock.analytics : null;
+    var s = a ? a.stats() : null;
+    var code = String(cur.siteCode || '').trim();
+    var provider0 = String(cur.provider || 'off').toLowerCase();
+
+    var live = !!(s && s.total > 0);
+    var badge = live
+      ? { c: '#A3E635', t: '已联动：累计 ' + s.total + ' 次访问' }
+      : (code ? { c: '#FDE047', t: '代号已填，数据还没回流' } : { c: '#FDE047', t: '未接入' });
+
+    return '' +
+    '<h2 class="font-display text-2xl mb-4">访问统计 <span class="text-base font-black opacity-60">（GoatCounter · 数据回流到仓库）</span></h2>' +
+    '<div class="nb-card !bg-white p-5 mb-10">' +
+      '<div class="flex flex-wrap items-center gap-3 mb-4">' +
+        '<span class="font-black text-sm px-3 py-1 border-[3px] border-black" style="background:' + badge.c + '">' + badge.t + '</span>' +
+        (live ? '<span class="text-xs font-bold opacity-70">最近同步 ' + statsWhen(s) + '</span>' : '') +
+      '</div>' +
+      '<p class="text-sm font-semibold leading-relaxed mb-4">' +
+        '访客打开页面时上报一次浏览，GitHub Actions 每 6 小时把汇总数据拉回来写进 <code>' + esc(CFG.statsPath || 'content/stats.json') + '</code>，' +
+        '网页再读这个文件显示。<b>统计服务的密钥只存在仓库 Secret 里，从不进网页</b>，所以别人看不到你的密钥，数据也都在你自己仓库里。' +
+      '</p>' +
+
+      '<div class="grid sm:grid-cols-3 gap-3 mb-4">' +
+        '<div><label class="block text-sm font-black mb-1">服务商</label>' +
+          '<select id="st-provider" class="nb-input !text-sm">' +
+            [['goatcounter', 'GoatCounter（推荐）'], ['busuanzi', '不蒜子（国内备选）'], ['off', '关闭统计']]
+              .map(function (o) { return '<option value="' + o[0] + '"' + (provider0 === o[0] ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('') +
+          '</select></div>' +
+        '<div class="sm:col-span-2"><label class="block text-sm font-black mb-1">站点代号</label>' +
+          '<input id="st-code" class="nb-input !text-sm font-mono" value="' + esc(code) + '" placeholder="例如 bedrock">' +
+          '<div class="text-xs font-bold opacity-60 mt-1">就是 https://<b>这里</b>.goatcounter.com 的前半段</div></div>' +
+      '</div>' +
+
+      '<div class="flex flex-wrap gap-2 mb-4">' +
+        '<button class="nb-btn !text-sm !bg-sky" data-action="check-analytics"><i class="ri-radar-line"></i> 检查数据是否回流</button>' +
+        '<button class="nb-btn !text-sm !bg-sun" data-action="save-analytics" data-github="0"><i class="ri-save-3-line"></i> 先只在本地生效</button>' +
+        '<button class="nb-btn !text-sm !bg-mint" data-action="save-analytics" data-github="1"><i class="ri-upload-2-line"></i> 保存并提交到 GitHub</button>' +
+      '</div>' +
+      '<div id="stats-result"></div>' +
+
+      '<details class="mt-4 border-[3px] border-black p-3" style="background:#FFFDF0">' +
+        '<summary class="font-black cursor-pointer">还没配好？点开看四步操作</summary>' +
+        '<ol class="list-decimal pl-5 mt-3 text-sm font-semibold leading-relaxed space-y-2">' +
+          '<li>打开 <a href="https://www.goatcounter.com" target="_blank" rel="noopener" class="underline">goatcounter.com</a> → Sign up，邮箱注册后 Add site，记下给的地址 <code>https://代号.goatcounter.com</code>，填上面的「站点代号」。</li>' +
+          '<li>同一个站点左侧菜单 <b>API</b> → Create new API key，权限勾 <b>Read statistics</b>，复制那串密钥。</li>' +
+          '<li>回到 GitHub 仓库 → <b>Settings → Secrets and variables → Actions → New repository secret</b>，加两个：<code>GC_SITE</code> 填代号（如 <code>bedrock</code>）、<code>GC_API_KEY</code> 填刚才那串密钥。</li>' +
+          '<li>把本项目的 <code>.github/workflows/stats.yml</code> 传到仓库对应目录，然后 Actions 页面手动 Run workflow 一次，第一份数据就出来了。</li>' +
+        '</ol>' +
+      '</details>' +
+    '</div>';
+  }
+
+  function statsWhen(s) {
+    try {
+      return new Date(s.updatedAt).toLocaleString('zh-CN', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+    } catch (e) { return ''; }
+  }
+
+  function analyticsBox(type, title, lines) {
+    var colors = { ok: '#A3E635', err: '#FB7185', warn: '#FDE047', info: '#38BDF8' };
+    var box = document.getElementById('stats-result');
+    if (!box) return;
+    box.innerHTML = '<div class="border-[3px] border-black p-4" style="background:' + (colors[type] || '#fff') + '">' +
+      '<div class="font-display text-lg mb-2">' + esc(title) + '</div>' +
+      '<ol class="list-decimal pl-5 text-sm font-semibold leading-relaxed space-y-1">' +
+        lines.map(function (l) { return '<li>' + l + '</li>'; }).join('') +
+      '</ol></div>';
+  }
+
+  // 检查 content/stats.json 有没有被 Actions 写回来
+  function checkAnalytics() {
+    var box = document.getElementById('stats-result');
+    if (box) box.innerHTML = '<div class="border-[3px] border-black p-4" style="background:#38BDF8"><i class="ri-loader-4-line"></i> 正在读取 ' + esc(CFG.statsPath || 'content/stats.json') + ' …</div>';
+
+    gh.fetchJson(CFG.statsPath || 'content/stats.json').then(function (d) {
+      if (!d || typeof d !== 'object') throw new Error('bad');
+      if (d.total > 0) {
+        analyticsBox('ok', '数据已回流，累计 ' + d.total + ' 次访问', [
+          '最近同步时间：' + (statsWhen(d) || '未知'),
+          '每天 UTC 的 0:23 / 6:23 / 12:23 / 18:23 会自动再拉一次，不用你管。',
+          '想立刻更新：仓库 Actions 页面 → 同步访问统计 → Run workflow。'
+        ]);
+      } else {
+        analyticsBox('warn', '文件有了，但里面是 0 次访问', [
+          '说明 Actions 已经跑通，只是还没采到浏览——' + '<b>注意：你自己本地预览的刷新不会计入统计</b>（代码里特意屏蔽了，免得虚高）。',
+          '用手机流量打开你的博客网址随便点两个页面，再回这里点「检查」。',
+          '数据是有延迟的：GoatCounter 后台通常几分钟内就能查到，本站 stats.json 要等下一次 Actions 同步才会跟着变。'
+        ]);
+      }
+    }).catch(function () {
+      analyticsBox('err', '读不到统计文件，链路还没通', [
+        '先确认仓库里有 <code>.github/workflows/stats.yml</code> 这个文件（注意 <code>.github</code> 前面的点，GitHub 网页上传时会自动建目录）。',
+        '再确认 Settings → Secrets and variables → Actions 里有 <code>GC_SITE</code> 和 <code>GC_API_KEY</code> 两项。',
+        '然后去 Actions 页面 → 同步访问统计 → Run workflow 手动跑一次，跑完再看这里。',
+        '以上都对还是不行？打开 Actions 那条运行记录，把红色的报错复制出来。'
+      ]);
+    });
+  }
+
+  function saveAnalytics(toGithub) {
+    var obj = {
+      provider: document.getElementById('st-provider').value,
+      siteCode: document.getElementById('st-code').value.trim()
+    };
+    if (obj.provider === 'goatcounter' && !obj.siteCode) {
+      ui.toast('GoatCounter 必须填站点代号', 'err'); return;
+    }
+    var s = store.mergeSite();
+    s.analytics = obj;
+    if (!toGithub) {
+      store.saveSiteLocal(s);
+      ui.toast('已保存到本地浏览器，刷新看看；提交到 GitHub 才会同步给别人', 'ok');
+      return;
+    }
+    if (!store.isAuthor()) {
+      ui.toast('要提交到 GitHub，得先登录站长账号', 'err'); return;
+    }
+    store.commitSite(s).then(function () {
+      ui.toast('已提交到 GitHub，稍等 Pages 重建后生效', 'ok');
+    }).catch(function (e) {
+      ui.toast('提交失败：' + ((e && e.message) || e), 'err');
+    });
+  }
+
+>>>>>>> 1acd59d (add local blog files)
   /* 检测：一步步告诉用户还差什么 */
   var Q_REPO = 'query($owner:String!,$name:String!){repository(owner:$owner,name:$name){id name visibility hasDiscussionsEnabled discussionCategories(first:20){nodes{id name slug emoji}}}}';
 
@@ -473,6 +613,11 @@
     viewAdmin: viewAdmin, openEditor: openEditor, initEditorUI: initEditorUI,
     saveToGithub: saveToGithub, saveLocalDraft: saveLocalDraft, downloadCurrent: downloadCurrent,
     deletePost: deletePost, exportAll: exportAll, importJson: importJson, saveSite: saveSite,
+<<<<<<< HEAD
     detectGiscus: detectGiscus, saveGiscus: saveGiscus
+=======
+    detectGiscus: detectGiscus, saveGiscus: saveGiscus,
+    checkAnalytics: checkAnalytics, saveAnalytics: saveAnalytics
+>>>>>>> 1acd59d (add local blog files)
   };
 })(window);

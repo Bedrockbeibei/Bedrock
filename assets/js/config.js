@@ -80,7 +80,25 @@ window.BEDROCK_CONFIG = {
   // 未启用 Giscus 时的兜底：评论存本地浏览器（会在 UI 上明确标注「仅本设备可见」）
   localComment: true,
 
+<<<<<<< HEAD
   /* ---------- 5. 作者 OAuth 登录（可选，日常更方便） ---------- */
+=======
+  /* ---------- 5. 访问统计 ---------- */
+  // 【推荐】同样不用手填：部署上线后，去「创作台 → 访问统计」里填站点代号即可，
+  // 系统会自动写进 content/site.json——数据在文件里，不在代码里。
+  //
+  // 工作原理：
+  //   访客打开页面        → count.js 上报「这个路径被看了一次」
+  //   GitHub Actions 定时 → 用密钥把数据拉回来，写进 content/stats.json
+  //   网页再读这个 JSON   → 显示浏览量和趋势
+  // 密钥全程只存在仓库 Secret 里，从不进网页，所以安全。
+  analytics: {
+    provider: 'goatcounter',  // 'goatcounter'（推荐）| 'busuanzi'（国内备选）| 'off'（关闭）
+    siteCode: ''              // GoatCounter 站点代号，例如 'bedrock'
+  },
+
+  /* ---------- 6. 作者 OAuth 登录（可选，日常更方便） ---------- */
+>>>>>>> 1acd59d (add local blog files)
   // 想用「点击授权」而不是手抄 Token：
   // 1) https://github.com/settings/developers → New OAuth App
   //    Homepage: https://<owner>.github.io/<repo>/
@@ -93,7 +111,11 @@ window.BEDROCK_CONFIG = {
     scope: 'repo'
   },
 
+<<<<<<< HEAD
   /* ---------- 6. 其它 ---------- */
+=======
+  /* ---------- 7. 其它 ---------- */
+>>>>>>> 1acd59d (add local blog files)
   pageSize: 8             // 文章列表每页条数
 };
 

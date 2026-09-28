@@ -110,8 +110,13 @@
           '</div>' +
           '<h3 class="post-title font-display ' + (big ? 'text-2xl sm:text-3xl' : 'text-xl') + ' mb-2 leading-tight">' + esc(p.title) + '</h3>' +
           '<p class="text-sm font-medium leading-relaxed mb-4 line-clamp-3">' + esc(p.excerpt || stripMd(p.body).slice(0, 90)) + '</p>' +
+<<<<<<< HEAD
           '<div class="flex items-center justify-between text-xs font-bold border-t-2 border-black pt-3">' +
             '<span><i class="ri-calendar-line"></i> ' + fmtDate(p.createdAt) + '</span>' +
+=======
+          '<div class="flex flex-wrap items-center justify-between gap-2 text-xs font-bold border-t-2 border-black pt-3">' +
+            '<span class="flex items-center gap-2"><span><i class="ri-calendar-line"></i> ' + fmtDate(p.createdAt) + '</span>' + viewsChip(p.slug) + '</span>' +
+>>>>>>> 1acd59d (add local blog files)
             '<span><i class="ri-timer-line"></i> ' + mins + ' 分钟</span>' +
             '<span class="underline">阅读全文 <i class="ri-arrow-right-line"></i></span>' +
           '</div>' +
@@ -159,6 +164,11 @@
           '<div class="grid grid-cols-3 gap-2 w-full text-center">' +
             stat(pub.length, '文章') + stat(tags.length, '标签') + stat(projects.length, '项目') +
           '</div>' +
+<<<<<<< HEAD
+=======
+          (statData() && statData().total ? '<div class="w-full text-center border-2 border-black bg-sun py-1 text-xs font-bold -rotate-1">' +
+            '<i class="ri-bar-chart-line"></i> 累计访问 ' + statData().total + ' 次</div>' : '') +
+>>>>>>> 1acd59d (add local blog files)
         '</div>' +
       '</div>' +
     '</section>' +
@@ -192,13 +202,107 @@
             (p.url && p.url !== '#' ? '<a href="' + esc(p.url) + '" target="_blank" rel="noopener" class="nb-btn !text-sm !bg-white"><i class="ri-external-link-line"></i> 去看看</a>' : '') +
           '</article>';
         }).join('') +
+<<<<<<< HEAD
       '</div>' : '');
+=======
+      '</div>' : '') +
+
+    /* ---------- 访问统计（数据在 content/stats.json；没接统计时整块不会出现） ---------- */
+    statsPanel();
+>>>>>>> 1acd59d (add local blog files)
 
     return html;
   }
   function stat(n, label) {
     return '<div class="border-2 border-black bg-white py-2"><div class="font-display text-xl">' + n + '</div><div class="text-[11px] font-bold">' + label + '</div></div>';
   }
+<<<<<<< HEAD
+=======
+
+  /* ================= 访问统计 =================
+     数据来自 content/stats.json，由 GitHub Actions 定时写入。
+     关键点：这一份数据是异步到的，可能在页面首次渲染时还没准备好。
+     所以所有展示都写成「有就显示，没有就什么都不显示」，
+     等 analytics.js 通知数据到了，app.js 会触发一次重渲染自动补上。 */
+  function an() { return (global.Bedrock && global.Bedrock.analytics) ? global.Bedrock.analytics : null; }
+  function statData() { var a = an(); return a ? a.stats() : null; }
+  function viewsOf(path) { var a = an(); return a ? a.viewsOf(path) : 0; }
+
+  // 文章浏览量小徽章；没有数据就返回空字符串，不留任何痕迹
+  function viewsChip(slug) {
+    var n = viewsOf('/post/' + slug);
+    if (!n) return '';
+    return '<span class="inline-flex items-center gap-1 bg-white border-2 border-black px-1.5 py-0.5">' +
+      '<i class="ri-eye-line"></i> ' + n + '</span>';
+  }
+
+  function statsPanel() {
+    var s = statData();
+    if (!s || !s.total) return '';                    // 没接统计，整块不出现
+
+    var daily = s.daily || [];
+    var max = 0;
+    daily.forEach(function (d) { if (d.pv > max) max = d.pv; });
+    if (!max) max = 1;
+
+    var bars = daily.map(function (d) {
+      var h = Math.max(2, Math.round(d.pv / max * 100));
+      return '<div class="flex-1 min-w-[5px] border-2 border-black" style="height:' + h + '%;background:' +
+        (d.pv ? '#A3E635' : '#FFFFFF') + '" title="' + d.day + ' · ' + d.pv + ' 次"></div>';
+    }).join('');
+
+    // 按浏览量排出最受欢迎的文章
+    var hot = Object.keys(s.paths || {})
+      .filter(function (k) { return k.indexOf('/post/') === 0; })
+      .map(function (k) {
+        var v = s.paths[k];
+        return { slug: k.slice(6), pv: (v && typeof v === 'object') ? (v.pv || 0) : (v || 0) };
+      })
+      .sort(function (a, b) { return b.pv - a.pv; })
+      .slice(0, 6);
+
+    function list(arr, empty) {
+      if (!arr || !arr.length) return '<div class="text-xs font-bold opacity-50">' + empty + '</div>';
+      return arr.slice(0, 5).map(function (x) {
+        return '<div class="flex justify-between gap-2 text-xs font-bold border-b-2 border-black py-1">' +
+          '<span class="truncate">' + esc(x.name) + '</span><b>' + x.pv + '</b></div>';
+      }).join('');
+    }
+
+    var when = '';
+    try {
+      when = new Date(s.updatedAt).toLocaleString('zh-CN', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+    } catch (e) { when = ''; }
+
+    return '' +
+    sectionTitle('站点数据', 'sky') +
+    '<div class="nb-card p-5 mb-10">' +
+      '<div class="grid md:grid-cols-3 gap-5">' +
+        '<div>' +
+          '<div class="text-xs font-black opacity-60 mb-1">累计访问</div>' +
+          '<div class="font-display text-4xl leading-none mb-2">' + s.total + '</div>' +
+          (when ? '<div class="text-xs font-bold opacity-60">数据同步于 ' + when + '</div>' : '') +
+        '</div>' +
+        '<div>' +
+          '<div class="text-xs font-black opacity-60 mb-1">最近 ' + daily.length + ' 天</div>' +
+          '<div class="flex items-end gap-[3px] h-20 border-2 border-black bg-white p-1">' + bars + '</div>' +
+        '</div>' +
+        '<div>' +
+          '<div class="text-xs font-black opacity-60 mb-1">访客来自</div>' +
+          list(s.locations, '还没有数据') +
+        '</div>' +
+      '</div>' +
+      (hot.length ? '<div class="mt-5 border-t-2 border-black pt-4">' +
+        '<div class="text-xs font-black opacity-60 mb-2">最受欢迎的文章</div>' +
+        '<div class="flex flex-wrap gap-2">' +
+        hot.map(function (h) {
+          var p = store.getPost(h.slug);
+          return '<a href="#/post/' + esc(h.slug) + '" class="sticker !text-xs" style="--r:' + rnd(-2, 2.5).toFixed(2) + 'deg;background:#FDE047">' +
+            esc(p ? p.title : h.slug) + ' <b>' + h.pv + '</b></a>';
+        }).join('') + '</div></div>' : '') +
+    '</div>';
+  }
+>>>>>>> 1acd59d (add local blog files)
   function emptyBox(text) {
     return '<div class="nb-card p-8 text-center font-bold sm:col-span-2">' + esc(text) + '</div>';
   }
@@ -296,6 +400,10 @@
         '<div class="flex flex-wrap items-center gap-3 text-sm font-bold border-y-2 border-black py-3 mb-6">' +
           '<span><i class="ri-calendar-line"></i> ' + fmtDate(p.createdAt) + '</span>' +
           '<span><i class="ri-timer-line"></i> 约 ' + readMinutes(p.body) + ' 分钟</span>' +
+<<<<<<< HEAD
+=======
+          viewsChip(p.slug) +
+>>>>>>> 1acd59d (add local blog files)
           (p.updatedAt && p.updatedAt !== p.createdAt ? '<span><i class="ri-refresh-line"></i> 更新于 ' + fmtDate(p.updatedAt) + '</span>' : '') +
           '<span class="ml-auto bg-sun border-2 border-black px-2 py-0.5 rotate-[-1deg]">' + esc(p.slug) + '</span>' +
         '</div>' +
