@@ -1,0 +1,196 @@
+/* =========================================================
+   沉潜·Bedrock — Neo-Brutalism 设计系统
+   规则：硬边框 / 零模糊硬投影 / 碰撞色 / 贴纸微旋转 / 物理按压
+   ========================================================= */
+
+:root{
+  --paper:#FFFDF0;
+  --ink:#000000;
+  --mint:#A3E635;
+  --violet:#C084FC;
+  --sun:#FDE047;
+  --sky:#38BDF8;
+  --coral:#FB7185;
+  --dot-size:20px;
+}
+
+/* ---------- 基础 ---------- */
+*{ -webkit-tap-highlight-color:transparent; }
+html{ scroll-behavior:smooth; }
+body{
+  background-color:var(--paper);
+  background-image:radial-gradient(#000 1.6px, transparent 1.7px);
+  background-size:var(--dot-size) var(--dot-size);
+  background-position:0 0;
+  background-attachment:fixed;
+  color:#000;
+  overflow-x:hidden;         /* 防止硬阴影在窄屏造成横向溢出 */
+  word-break:break-word;
+}
+::selection{ background:var(--sun); color:#000; }
+
+h1,h2,h3,h4,h5,h6,.font-display,.nb-title{
+  font-family:'Archivo Black','Space Grotesk','Noto Sans SC',system-ui,sans-serif !important;
+  font-weight:900 !important;   /* 新丑风：标题一律超粗 */
+  letter-spacing:-.01em;
+  line-height:1.1;
+}
+
+/* ---------- 硬边卡片 ---------- */
+.nb-card{
+  background:#fff;
+  border:3px solid #000;
+  box-shadow:6px 6px 0 0 #000;
+  transition:transform .14s ease, box-shadow .14s ease;
+}
+.nb-card:hover{ transform:translate(-2px,-2px); box-shadow:9px 9px 0 0 #000; }
+.nb-card-static:hover{ transform:none; box-shadow:6px 6px 0 0 #000; }
+
+/* ---------- 物理按压按钮 ---------- */
+.nb-btn{
+  display:inline-flex; align-items:center; gap:.45rem;
+  background:#fff; color:#000;
+  border:3px solid #000;
+  box-shadow:4px 4px 0 0 #000;
+  padding:.5rem .9rem;
+  font-weight:800; font-size:.95rem; line-height:1.2;
+  cursor:pointer; user-select:none;
+  transition:transform .1s ease, box-shadow .1s ease, background-color .1s ease;
+  text-decoration:none;
+}
+.nb-btn:hover{ transform:translate(2px,2px); box-shadow:2px 2px 0 0 #000; }
+.nb-btn:active{ transform:translate(4px,4px); box-shadow:0 0 0 0 #000; }
+.nb-btn[disabled]{ opacity:.5; pointer-events:none; }
+.nb-btn.is-active{ background:var(--mint); }
+
+/* ---------- 导航链接 ---------- */
+.nb-navlink{
+  display:inline-block; padding:.35rem .6rem; margin-right:.15rem;
+  font-weight:800; font-size:.95rem;
+  border:2px solid transparent;
+  transition:all .12s ease;
+}
+.nb-navlink:hover{ border-color:#000; background:var(--sun); box-shadow:2px 2px 0 0 #000; transform:translate(1px,1px); }
+.nb-navlink.on{ border-color:#000; background:var(--mint); box-shadow:3px 3px 0 0 #000; }
+
+/* ---------- 贴纸徽章（随机微旋转） ---------- */
+.sticker{
+  display:inline-flex; align-items:center; gap:.25rem;
+  border:2px solid #000;
+  box-shadow:2px 2px 0 0 #000;
+  padding:.1rem .5rem;
+  font-size:.72rem; font-weight:800; line-height:1.5;
+  background:#fff;
+  transform:rotate(var(--r,0deg));
+  transition:transform .12s ease;
+  white-space:nowrap;
+}
+.sticker:hover{ transform:rotate(0deg) translate(-1px,-1px) scale(1.04); }
+
+/* ---------- 表单 ---------- */
+.nb-input{
+  width:100%;
+  border:3px solid #000;
+  background:#fff;
+  padding:.55rem .75rem;
+  font-weight:600; font-size:.95rem;
+  outline:none;
+  box-shadow:3px 3px 0 0 #000;
+  transition:background-color .12s ease;
+  font-family:inherit;
+  border-radius:0;
+}
+.nb-input:focus{ background:var(--sun); }
+textarea.nb-input{ resize:vertical; }
+
+/* ---------- 提示便签 ---------- */
+.nb-note{
+  border:3px solid #000; box-shadow:3px 3px 0 0 #000;
+  padding:.6rem .75rem; font-size:.82rem; font-weight:600; line-height:1.5;
+  display:flex; gap:.5rem; align-items:flex-start;
+}
+.nb-note i{ font-size:1.1rem; flex-shrink:0; }
+
+/* ---------- 弹窗 ---------- */
+.nb-modal{ position:fixed; inset:0; z-index:90; display:flex; align-items:center; justify-content:center; padding:12px; }
+.nb-modal-mask{ position:absolute; inset:0; background:rgba(0,0,0,.55); }
+.nb-modal-box{ position:relative; max-height:92vh; overflow:hidden; display:flex; flex-direction:column; animation:nbPop .16s ease-out; }
+@keyframes nbPop{ from{ transform:translateY(10px) scale(.98); opacity:0 } to{ transform:none; opacity:1 } }
+
+/* ---------- Toast ---------- */
+.nb-toast{
+  border:3px solid #000; box-shadow:4px 4px 0 0 #000;
+  background:#fff; padding:.55rem .85rem; font-weight:800; font-size:.85rem;
+  max-width:78vw; animation:nbSlide .18s ease-out;
+  display:flex; gap:.45rem; align-items:center;
+}
+@keyframes nbSlide{ from{ transform:translateX(30px); opacity:0 } to{ transform:none; opacity:1 } }
+
+/* ---------- 分割线 ---------- */
+.nb-rule{ height:3px; background:#000; border:0; }
+
+/* ---------- 正文排版（Markdown 渲染结果） ---------- */
+.prose-nb{ font-size:1rem; line-height:1.85; font-weight:500; }
+.prose-nb h1,.prose-nb h2,.prose-nb h3,.prose-nb h4{
+  font-family:'Archivo Black','Space Grotesk','Noto Sans SC',system-ui,sans-serif;
+  font-weight:900; margin:1.8em 0 .8em; line-height:1.25;
+}
+.prose-nb h1{ font-size:1.9rem; }
+.prose-nb h2{
+  font-size:1.5rem; display:inline-block; background:var(--mint);
+  border:3px solid #000; box-shadow:4px 4px 0 0 #000; padding:.15rem .6rem; margin-left:-2px;
+}
+.prose-nb h3{ font-size:1.2rem; border-left:8px solid var(--violet); padding-left:.6rem; }
+.prose-nb h4{ font-size:1.05rem; }
+.prose-nb p{ margin:.9em 0; }
+.prose-nb a{ font-weight:800; text-decoration:underline; text-underline-offset:3px; text-decoration-thickness:3px; }
+.prose-nb a:hover{ background:var(--sun); }
+.prose-nb ul,.prose-nb ol{ margin:.9em 0; padding-left:1.4rem; }
+.prose-nb ul li{ list-style:square; margin:.35em 0; }
+.prose-nb ol li{ list-style:decimal; margin:.35em 0; font-weight:600; }
+.prose-nb blockquote{
+  border-left:8px solid #000; background:var(--sun);
+  padding:.7rem .9rem; margin:1.2em 0; font-weight:600;
+  box-shadow:4px 4px 0 0 #000;
+}
+.prose-nb blockquote p{ margin:0; }
+.prose-nb code{
+  background:#000; color:var(--mint); padding:.1rem .35rem; font-size:.88em; font-weight:700;
+}
+.prose-nb pre{
+  background:#111; border:3px solid #000; box-shadow:5px 5px 0 0 #000;
+  padding:1rem; overflow-x:auto; margin:1.2em 0;
+}
+.prose-nb pre code{ background:transparent; color:#f3f4f6; padding:0; font-weight:500; font-size:.85rem; }
+.prose-nb img{ border:3px solid #000; box-shadow:5px 5px 0 0 #000; max-width:100%; margin:1.2em 0; }
+.prose-nb table{ border-collapse:collapse; width:100%; margin:1.2em 0; font-size:.9rem; box-shadow:5px 5px 0 0 #000; border:3px solid #000; }
+.prose-nb th,.prose-nb td{ border:2px solid #000; padding:.5rem .6rem; text-align:left; }
+.prose-nb th{ background:var(--sky); font-weight:900; }
+.prose-nb hr{ border:0; height:3px; background:#000; margin:2em 0; }
+.prose-nb .hljs{ background:transparent !important; }
+
+/* ---------- 文章卡片特殊反馈 ---------- */
+.post-card{ cursor:pointer; }
+.post-card:hover .post-title{ background:var(--sun); }
+
+/* ---------- 移动端：压缩硬投影，避免溢出/挤压 ---------- */
+@media (max-width:640px){
+  .nb-card{ box-shadow:4px 4px 0 0 #000; }
+  .nb-card:hover{ transform:translate(-1px,-1px); box-shadow:6px 6px 0 0 #000; }
+  .nb-btn{ box-shadow:3px 3px 0 0 #000; padding:.45rem .7rem; font-size:.88rem; }
+  .nb-btn:hover{ transform:translate(1.5px,1.5px); box-shadow:1.5px 1.5px 0 0 #000; }
+  .nb-btn:active{ transform:translate(3px,3px); box-shadow:0 0 0 0 #000; }
+  .prose-nb{ font-size:.95rem; }
+  .prose-nb h2{ font-size:1.25rem; }
+  .prose-nb pre{ box-shadow:3px 3px 0 0 #000; }
+}
+
+/* ---------- 滚动条 ---------- */
+::-webkit-scrollbar{ width:12px; height:12px; }
+::-webkit-scrollbar-track{ background:var(--paper); border-left:2px solid #000; }
+::-webkit-scrollbar-thumb{ background:#000; border:2px solid var(--paper); }
+
+/* ---------- 无障碍 ---------- */
+@media (prefers-reduced-motion:reduce){
+  *{ animation:none !important; transition:none !important; }
+}

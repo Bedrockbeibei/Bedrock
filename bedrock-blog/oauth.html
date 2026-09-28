@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>登录中 · 沉潜·Bedrock</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Noto+Sans+SC:wght@700;900&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet">
+<style>
+  body{background:#FFFDF0;background-image:radial-gradient(#000 1.6px,transparent 1.7px);background-size:20px 20px;
+       font-family:'Noto Sans SC',system-ui,sans-serif;display:grid;place-items:center;min-height:100vh;margin:0}
+  h1,h2{font-family:'Archivo Black','Noto Sans SC',sans-serif;font-weight:900}
+  .box{background:#fff;border:3px solid #000;box-shadow:8px 8px 0 0 #000;padding:32px;max-width:520px;width:calc(100% - 32px)}
+  .btn{display:inline-flex;align-items:center;gap:.5rem;border:3px solid #000;background:#A3E635;box-shadow:4px 4px 0 0 #000;
+       padding:.6rem 1rem;font-weight:800;cursor:pointer;text-decoration:none;color:#000}
+  .btn:hover{transform:translate(2px,2px);box-shadow:2px 2px 0 0 #000}
+  .btn:active{transform:translate(4px,4px);box-shadow:0 0 0 0 #000}
+</style>
+</head>
+<body>
+<div class="box">
+  <h1 id="head" style="font-size:28px;margin:0 0 12px">正在完成 GitHub 登录<i class="ri-loader-4-line"></i></h1>
+  <p id="msg" style="font-weight:600;line-height:1.7">正在用授权码换取访问令牌，稍等一下…</p>
+  <div id="err" style="display:none;border:3px solid #000;background:#FB7185;padding:12px;font-weight:700;margin:12px 0"></div>
+  <p><a class="btn" href="./index.html">返回博客 <i class="ri-arrow-right-line"></i></a></p>
+</div>
+
+<script src="assets/js/config.js"></script>
+<script src="assets/js/github.js"></script>
+<script>
+(function(){
+  var head = document.getElementById('head'), msg = document.getElementById('msg'), err = document.getElementById('err');
+  var params = new URLSearchParams(location.search);
+  var code = params.get('code');
+  var error = params.get('error');
+
+  function fail(text){
+    head.innerHTML = '登录失败 <i class="ri-error-warning-line"></i>';
+    msg.textContent = '可以改用 Token 登录：在博客右上角「登录」里粘贴 GitHub Personal Access Token。';
+    err.style.display = 'block';
+    err.textContent = text;
+  }
+
+  if (error || !code) { fail(error ? ('GitHub 返回错误：' + error) : 'URL 里没有授权码（code）。'); return; }
+  if (!window.BEDROCK_CONFIG.oauth.workerUrl) { fail('还没配置 oauth.workerUrl（assets/js/config.js）。'); return; }
+
+  window.Bedrock.gh.exchangeCode(code)
+    .then(function(res){
+      head.innerHTML = res.author ? '登录成功 <i class="ri-checkbox-circle-fill"></i>' : '已登录（访客） <i class="ri-user-line"></i>';
+      msg.textContent = res.author ? ('作者身份：' + res.user.login + '。正在跳回博客…') : ('访客身份：' + res.user.login + '。正在跳回博客…');
+      var from = localStorage.getItem('bedrock_oauth_from') || '#/';
+      setTimeout(function(){ location.replace('./index.html' + from); }, 900);
+    })
+    .catch(function(e){ fail(e.message || String(e)); });
+})();
+</script>
+</body>
+</html>
