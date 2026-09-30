@@ -71,11 +71,7 @@
     '</div>' +
 
     /* ---------- 评论设置（Giscus） ---------- */
-<<<<<<< HEAD
-    commentCard(site) +
-=======
     commentCard(site) + statsCard() +
->>>>>>> 1acd59d (add local blog files)
 
     /* ---------- 站点资料 ---------- */
     '<h2 class="font-display text-2xl mb-4">站点资料</h2>' +
@@ -151,8 +147,6 @@
     '</div>';
   }
 
-<<<<<<< HEAD
-=======
   /* ================= 访问统计卡片 ================= */
   function analyticsCfg() {
     var base = Object.assign({}, CFG.analytics || {});
@@ -205,8 +199,8 @@
       '<details class="mt-4 border-[3px] border-black p-3" style="background:#FFFDF0">' +
         '<summary class="font-black cursor-pointer">还没配好？点开看四步操作</summary>' +
         '<ol class="list-decimal pl-5 mt-3 text-sm font-semibold leading-relaxed space-y-2">' +
-          '<li>打开 <a href="https://www.goatcounter.com" target="_blank" rel="noopener" class="underline">goatcounter.com</a> → Sign up，邮箱注册后 Add site，记下给的地址 <code>https://代号.goatcounter.com</code>，填上面的「站点代号」。</li>' +
-          '<li>同一个站点左侧菜单 <b>API</b> → Create new API key，权限勾 <b>Read statistics</b>，复制那串密钥。</li>' +
+          '<li>打开 <a href="https://www.goatcounter.com" target="_blank" rel="noopener" class="underline">goatcounter.com</a> → 点 <b>Sign up</b>，在注册表单的 <b>Account name</b> 一栏填你的代号（它决定后台地址 <code>https://代号.goatcounter.com</code>，提交后通常改不了），记下拉这个代号填上面的「站点代号」。</li>' +
+          '<li>进仪表盘后，右上角点你的<b>用户名 → Settings → API</b>（或直接打开 <code>https://代号.goatcounter.com/settings/api</code>）→ Create new API key，权限勾 <b>Read statistics</b>，复制生成的那串密钥。</li>' +
           '<li>回到 GitHub 仓库 → <b>Settings → Secrets and variables → Actions → New repository secret</b>，加两个：<code>GC_SITE</code> 填代号（如 <code>bedrock</code>）、<code>GC_API_KEY</code> 填刚才那串密钥。</li>' +
           '<li>把本项目的 <code>.github/workflows/stats.yml</code> 传到仓库对应目录，然后 Actions 页面手动 Run workflow 一次，第一份数据就出来了。</li>' +
         '</ol>' +
@@ -286,7 +280,6 @@
     });
   }
 
->>>>>>> 1acd59d (add local blog files)
   /* 检测：一步步告诉用户还差什么 */
   var Q_REPO = 'query($owner:String!,$name:String!){repository(owner:$owner,name:$name){id name visibility hasDiscussionsEnabled discussionCategories(first:20){nodes{id name slug emoji}}}}';
 
@@ -613,11 +606,7 @@
     viewAdmin: viewAdmin, openEditor: openEditor, initEditorUI: initEditorUI,
     saveToGithub: saveToGithub, saveLocalDraft: saveLocalDraft, downloadCurrent: downloadCurrent,
     deletePost: deletePost, exportAll: exportAll, importJson: importJson, saveSite: saveSite,
-<<<<<<< HEAD
-    detectGiscus: detectGiscus, saveGiscus: saveGiscus
-=======
     detectGiscus: detectGiscus, saveGiscus: saveGiscus,
     checkAnalytics: checkAnalytics, saveAnalytics: saveAnalytics
->>>>>>> 1acd59d (add local blog files)
   };
 })(window);

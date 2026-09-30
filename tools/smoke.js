@@ -21,10 +21,6 @@ const win = dom.window;
 win.fetch = (u, o) => fetch(new URL(String(u), BASE), o);
 win.addEventListener('error', e => { if (!IGNORE.test(String(e.message))) errors.push('window.onerror: ' + e.message); });
 
-<<<<<<< HEAD
-// 手动注入本地脚本（CDN 不加载，marked/DOMPurify 走 fallback）
-['config', 'github', 'store', 'ui', 'editor', 'app'].forEach(name => {
-=======
 // 极简 marked 替身：CDN 不加载时，ui.md() 只能输出纯文本，正文里就没有 h2/h3，
 // 目录测试会变成假阳性。这里补一个只认 # / ## / ### 的最小实现。
 win.marked = {
@@ -40,7 +36,6 @@ win.marked = {
 
 // 手动注入本地脚本（CDN 不加载，DOMPurify 走 fallback）
 ['config', 'github', 'store', 'analytics', 'ui', 'editor', 'app'].forEach(name => {
->>>>>>> 1acd59d (add local blog files)
   const code = fs.readFileSync(path.join(dir, 'assets', 'js', name + '.js'), 'utf8');
   try { win.eval(code); } catch (e) { errors.push('eval ' + name + '.js: ' + e.message); }
 });
@@ -79,61 +74,12 @@ waitLoaded(() => {
   out.push('[boot] 文章数 = ' + (B ? B.store.state.posts.length : '-'));
   out.push('[boot] 是否作者 = ' + (B ? B.store.isAuthor() : '-'));
 
-<<<<<<< HEAD
-  function startRoutes() { next(); }
-  let i = 0;
-  const next = () => {
-    if (i >= routes.length) {
-      // 交互测试：留言板提交
-      win.location.hash = '#/guestbook';
-      setTimeout(() => {
-        try {
-          const d = win.document;
-          d.getElementById('gb-name').value = '测试同学';
-          d.getElementById('gb-content').value = '冒烟测试留言';
-          d.querySelector('[data-action="submit-guest"]').click();
-          out.push((html().indexOf('冒烟测试留言') >= 0 ? '✓ ' : '✗ ') + '留言板提交与渲染');
-        } catch (e) { out.push('✗ 留言板交互: ' + e.message); }
-
-        // 交互测试：文章评论
-        win.location.hash = '#/post/why-bedrock-on-github';
-        setTimeout(() => {
-          try {
-            const d = win.document;
-            d.getElementById('cmt-name').value = '测试同学';
-            d.getElementById('cmt-content').value = '冒烟测试评论';
-            d.querySelector('[data-action="submit-comment"]').click();
-            out.push((html().indexOf('冒烟测试评论') >= 0 ? '✓ ' : '✗ ') + '文章评论提交与渲染');
-          } catch (e) { out.push('✗ 评论交互: ' + e.message); }
-
-          // 交互测试：搜索
-          win.location.hash = '#/posts';
-          setTimeout(() => {
-            try {
-              win.document.getElementById('search-input').value = '单片机';
-              win.document.querySelector('[data-action="do-search"]').click();
-              setTimeout(() => {
-                out.push((html().indexOf('单片机') >= 0 ? '✓ ' : '✗ ') + '搜索筛选');
-                out.push('');
-                out.push(errors.length ? ('!! 运行时错误 ' + errors.length + ' 条:\n' + errors.slice(0, 15).join('\n')) : '✓ 无 JS 运行时错误');
-                fs.writeFileSync(path.join(dir, '_smoke_result.txt'), out.join('\n'), 'utf8');
-                win.close();
-                process.exit(0);
-              }, 400);
-            } catch (e) { out.push('✗ 搜索: ' + e.message); fs.writeFileSync(path.join(dir, '_smoke_result.txt'), out.join('\n'), 'utf8'); process.exit(0); }
-          }, 300);
-        }, 300);
-      }, 300);
-      return;
-    }
-=======
   const wait = ms => new Promise(r => setTimeout(r, ms));
 
   function startRoutes() { next(); }
   let i = 0;
   const next = () => {
     if (i >= routes.length) { runInteractions(); return; }
->>>>>>> 1acd59d (add local blog files)
     const [hash, keyword] = routes[i++];
     win.location.hash = hash;
     setTimeout(() => {
@@ -143,8 +89,6 @@ waitLoaded(() => {
     }, 200);
   };
 
-<<<<<<< HEAD
-=======
   async function runInteractions() {
     const d = win.document;
 
@@ -208,7 +152,6 @@ waitLoaded(() => {
     process.exit(0);
   }
 
->>>>>>> 1acd59d (add local blog files)
   // Giscus 评论设置卡片（未登录时应给出明确的下一步指引）
   win.location.hash = '#/admin';
   setTimeout(() => {

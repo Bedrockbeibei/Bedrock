@@ -110,13 +110,8 @@
           '</div>' +
           '<h3 class="post-title font-display ' + (big ? 'text-2xl sm:text-3xl' : 'text-xl') + ' mb-2 leading-tight">' + esc(p.title) + '</h3>' +
           '<p class="text-sm font-medium leading-relaxed mb-4 line-clamp-3">' + esc(p.excerpt || stripMd(p.body).slice(0, 90)) + '</p>' +
-<<<<<<< HEAD
-          '<div class="flex items-center justify-between text-xs font-bold border-t-2 border-black pt-3">' +
-            '<span><i class="ri-calendar-line"></i> ' + fmtDate(p.createdAt) + '</span>' +
-=======
           '<div class="flex flex-wrap items-center justify-between gap-2 text-xs font-bold border-t-2 border-black pt-3">' +
             '<span class="flex items-center gap-2"><span><i class="ri-calendar-line"></i> ' + fmtDate(p.createdAt) + '</span>' + viewsChip(p.slug) + '</span>' +
->>>>>>> 1acd59d (add local blog files)
             '<span><i class="ri-timer-line"></i> ' + mins + ' 分钟</span>' +
             '<span class="underline">阅读全文 <i class="ri-arrow-right-line"></i></span>' +
           '</div>' +
@@ -164,11 +159,8 @@
           '<div class="grid grid-cols-3 gap-2 w-full text-center">' +
             stat(pub.length, '文章') + stat(tags.length, '标签') + stat(projects.length, '项目') +
           '</div>' +
-<<<<<<< HEAD
-=======
           (statData() && statData().total ? '<div class="w-full text-center border-2 border-black bg-sun py-1 text-xs font-bold -rotate-1">' +
             '<i class="ri-bar-chart-line"></i> 累计访问 ' + statData().total + ' 次</div>' : '') +
->>>>>>> 1acd59d (add local blog files)
         '</div>' +
       '</div>' +
     '</section>' +
@@ -202,22 +194,16 @@
             (p.url && p.url !== '#' ? '<a href="' + esc(p.url) + '" target="_blank" rel="noopener" class="nb-btn !text-sm !bg-white"><i class="ri-external-link-line"></i> 去看看</a>' : '') +
           '</article>';
         }).join('') +
-<<<<<<< HEAD
-      '</div>' : '');
-=======
       '</div>' : '') +
 
     /* ---------- 访问统计（数据在 content/stats.json；没接统计时整块不会出现） ---------- */
     statsPanel();
->>>>>>> 1acd59d (add local blog files)
 
     return html;
   }
   function stat(n, label) {
     return '<div class="border-2 border-black bg-white py-2"><div class="font-display text-xl">' + n + '</div><div class="text-[11px] font-bold">' + label + '</div></div>';
   }
-<<<<<<< HEAD
-=======
 
   /* ================= 访问统计 =================
      数据来自 content/stats.json，由 GitHub Actions 定时写入。
@@ -302,7 +288,6 @@
         }).join('') + '</div></div>' : '') +
     '</div>';
   }
->>>>>>> 1acd59d (add local blog files)
   function emptyBox(text) {
     return '<div class="nb-card p-8 text-center font-bold sm:col-span-2">' + esc(text) + '</div>';
   }
@@ -400,10 +385,7 @@
         '<div class="flex flex-wrap items-center gap-3 text-sm font-bold border-y-2 border-black py-3 mb-6">' +
           '<span><i class="ri-calendar-line"></i> ' + fmtDate(p.createdAt) + '</span>' +
           '<span><i class="ri-timer-line"></i> 约 ' + readMinutes(p.body) + ' 分钟</span>' +
-<<<<<<< HEAD
-=======
           viewsChip(p.slug) +
->>>>>>> 1acd59d (add local blog files)
           (p.updatedAt && p.updatedAt !== p.createdAt ? '<span><i class="ri-refresh-line"></i> 更新于 ' + fmtDate(p.updatedAt) + '</span>' : '') +
           '<span class="ml-auto bg-sun border-2 border-black px-2 py-0.5 rotate-[-1deg]">' + esc(p.slug) + '</span>' +
         '</div>' +

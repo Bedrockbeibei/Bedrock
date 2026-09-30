@@ -124,9 +124,6 @@ giscus: {
 
 ---
 
-<<<<<<< HEAD
-## 四、本地预览
-=======
 ## 四、访问统计怎么开（真实 PV，不是装饰）
 
 本站的方案：**GoatCounter 采集 → GitHub Actions 定时拉回 → 写进 `content/stats.json` → 网页读它**。
@@ -206,7 +203,6 @@ Secret 保存之后就再也看不到明文了，只能覆盖——这正说明�
 ---
 
 ## 五、本地预览
->>>>>>> 1acd59d (add local blog files)
 
 GitHub API 不允许从 `file://` 调用，所以别直接双击 `index.html`，起个本地服务：
 
@@ -220,11 +216,7 @@ python -m http.server 8000
 
 ---
 
-<<<<<<< HEAD
-## 五、文件结构
-=======
 ## 六、文件结构
->>>>>>> 1acd59d (add local blog files)
 
 ```
 bedrock-blog/
@@ -232,47 +224,32 @@ bedrock-blog/
 ├── 404.html                # SPA 兜底
 ├── oauth.html              # OAuth 回调页
 ├── feed.json               # JSON Feed 订阅源（tools/gen-posts.js 生成）
-<<<<<<< HEAD
-=======
 ├── .github/workflows/
 │   └── stats.yml           # 每 6 小时拉一次统计，写回 content/stats.json
->>>>>>> 1acd59d (add local blog files)
 ├── assets/
 │   ├── css/style.css       # 新丑风设计系统：硬边框/硬投影/波点/贴纸/按压
 │   └── js/
 │       ├── config.js       # ★ 唯一需要你改的配置文件
 │       ├── github.js       # GitHub 认证 + Contents API 读写
 │       ├── store.js        # 文章/评论/留言数据层 + 本地覆盖层
-<<<<<<< HEAD
-=======
 │       ├── analytics.js    # 访问统计：上报浏览 + 读 content/stats.json
->>>>>>> 1acd59d (add local blog files)
 │       ├── ui.js           # 各板块视图渲染
 │       ├── editor.js       # 创作台 + Markdown 编辑器
 │       └── app.js          # 路由 / 事件 / 初始化
 ├── content/
 │   ├── posts.json          # ★ 文章数据库（作者保存时会 commit 这个文件）
-<<<<<<< HEAD
-│   └── site.json           # 站点资料（昵称、简介、项目、友链）
-├── tools/gen-posts.js      # 重新生成 posts.json / feed.json
-=======
 │   ├── site.json           # 站点资料（昵称、简介、项目、友链，评论/统计配置也写在这）
 │   └── stats.json          # 访问统计（由 Actions 定时写入，不用你管）
 ├── tools/
 │   ├── gen-posts.js        # 重新生成 posts.json / feed.json
 │   ├── fetch-stats.js      # 拉 GoatCounter 数据（Actions 里跑，也可本地跑）
 │   └── smoke.js            # jsdom 冒烟测试
->>>>>>> 1acd59d (add local blog files)
 └── workers/oauth-proxy.js  # Cloudflare Worker（OAuth 用，可选）
 ```
 
 ---
 
-<<<<<<< HEAD
-## 六、设计规格（已实现）
-=======
 ## 七、设计规格（已实现）
->>>>>>> 1acd59d (add local blog files)
 
 | 要求 | 实现 |
 | --- | --- |
@@ -289,11 +266,7 @@ bedrock-blog/
 
 ---
 
-<<<<<<< HEAD
-## 七、常见问题
-=======
 ## 八、常见问题
->>>>>>> 1acd59d (add local blog files)
 
 **Q：保存后别人看不到新文章？**
 A：GitHub Pages 有 1–2 分钟构建延迟。你自己的浏览器里因为有"本地覆盖层"会立刻显示。点创作台的「检查部署」可以确认线上是否就绪。

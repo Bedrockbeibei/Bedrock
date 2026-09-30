@@ -55,11 +55,8 @@
 
   function afterRender(head, r) {
     global.scrollTo({ top: 0, behavior: 'auto' });
-<<<<<<< HEAD
-=======
     // 路由刚换过，告诉统计服务：这个路径被看了一次
     if (global.Bedrock && global.Bedrock.analytics) global.Bedrock.analytics.track();
->>>>>>> 1acd59d (add local blog files)
     ui.highlight(view);
     injectGiscus(head === 'post' ? (r.segs[1] || '') : '');
     injectToc();
@@ -318,11 +315,8 @@
         case 'save-site-local': editor.saveSite(false); break;
         case 'save-site-github': editor.saveSite(true); break;
         case 'detect-giscus': editor.detectGiscus(); break;
-<<<<<<< HEAD
-=======
         case 'check-analytics': editor.checkAnalytics(); break;
         case 'save-analytics': editor.saveAnalytics(el.getAttribute('data-github') === '1'); break;
->>>>>>> 1acd59d (add local blog files)
         case 'save-giscus': editor.saveGiscus(el.getAttribute('data-github') === '1'); break;
         case 'reset-site':
           store.lsDel(store.K.site); ui.toast('已恢复默认站点资料', 'ok'); reload(); break;
@@ -378,8 +372,6 @@
     document.title = (site.title || 'Bedrock') + ' · 个人博客';
   }
 
-<<<<<<< HEAD
-=======
   /* 访问统计：拉 content/stats.json，数据到了重画一遍（首页的「站点数据」要更新）
      创作台是个例外：里面可能有你刚点出来的检测结果（Giscus 检测 / 统计回流检查），
      重画会把结果框清空，等于你白点一次。所以停在创作台时不自动重画。 */
@@ -393,7 +385,6 @@
     an.loadStats();
   }
 
->>>>>>> 1acd59d (add local blog files)
   /* 作者身份下：本地临时副本在确认线上已生效后自动清除，避免本地和仓库长期不一致 */
   function autoClearOverlay() {
     if (!store.isAuthor() || !store.state.deploying) return;
@@ -435,15 +426,11 @@
 
     // 先渲染一版（用缓存数据），再从远端刷新
     render();
-<<<<<<< HEAD
-    reload().then(function () { syncAuthUI(); autoClearOverlay(); });
-=======
     reload().then(function () {
       syncAuthUI();
       autoClearOverlay();
       initStats();
     });
->>>>>>> 1acd59d (add local blog files)
   }
 
   global.Bedrock = global.Bedrock || {};

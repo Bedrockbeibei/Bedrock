@@ -80,9 +80,6 @@ window.BEDROCK_CONFIG = {
   // 未启用 Giscus 时的兜底：评论存本地浏览器（会在 UI 上明确标注「仅本设备可见」）
   localComment: true,
 
-<<<<<<< HEAD
-  /* ---------- 5. 作者 OAuth 登录（可选，日常更方便） ---------- */
-=======
   /* ---------- 5. 访问统计 ---------- */
   // 【推荐】同样不用手填：部署上线后，去「创作台 → 访问统计」里填站点代号即可，
   // 系统会自动写进 content/site.json——数据在文件里，不在代码里。
@@ -98,7 +95,6 @@ window.BEDROCK_CONFIG = {
   },
 
   /* ---------- 6. 作者 OAuth 登录（可选，日常更方便） ---------- */
->>>>>>> 1acd59d (add local blog files)
   // 想用「点击授权」而不是手抄 Token：
   // 1) https://github.com/settings/developers → New OAuth App
   //    Homepage: https://<owner>.github.io/<repo>/
@@ -111,11 +107,7 @@ window.BEDROCK_CONFIG = {
     scope: 'repo'
   },
 
-<<<<<<< HEAD
-  /* ---------- 6. 其它 ---------- */
-=======
   /* ---------- 7. 其它 ---------- */
->>>>>>> 1acd59d (add local blog files)
   pageSize: 8             // 文章列表每页条数
 };
 
