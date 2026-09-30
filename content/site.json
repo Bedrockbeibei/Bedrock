@@ -85,5 +85,9 @@
     "lang": "zh-CN",
     "theme": "light",
     "mapping": "pathname"
+  },
+  "analytics": {
+    "provider": "goatcounter",
+    "siteCode": "bedrock"
   }
 }
