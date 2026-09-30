@@ -1,18 +1,18 @@
 {
   "version": 1,
   "updatedAt": "2026-09-23T14:28:12.488Z",
-  "title": "沉潜·Bedrock",
-  "slogan": "BEDROCK // 沉潜个人博客",
-  "author": "沉潜",
+  "title": "砺锋·Bedrock",
+  "slogan": "BEDROCK // 砺锋个人博客",
+  "author": "砺锋",
   "avatar": "https://api.dicebear.com/7.x/notionists/svg?seed=bedrock&backgroundColor=A3E635",
-  "bio": "北京理工大学睿信书院 · 信息科学技术类 2026 级。\n地基打得越深，楼才能盖得越高。这里记录我从零开始啃 AI 的全过程。",
+  "bio": "北京理工大学睿信书院 · 信息科学技术类 2026 级。\n地基打得越深，楼才能盖得越高。在这里记录我的大学生活，见证我的不断进步。",
   "location": "北京",
-  "email": "you@example.com",
+  "email": "3314151596@qq.com",
   "socials": [
     {
       "name": "GitHub",
       "icon": "ri-github-fill",
-      "url": "https://github.com/YOUR_GITHUB_USERNAME"
+      "url": "https://github.com/Bedrockbeibei"
     },
     {
       "name": "邮箱",
@@ -25,13 +25,13 @@
     "51 单片机",
     "Python",
     "前端",
-    "大一在读",
+    "大一",
     "硬核"
   ],
   "projects": [
     {
       "name": "Bedrock Blog",
-      "desc": "你现在看到的这个站。纯静态 + GitHub 作为后端，作者登录即可在线写文章，零服务器成本。",
+      "desc": "你现在看到的这个网站纯静态，再加 GitHub 作为后端，作者登录即可在线写文章，零服务器成本。",
       "tags": [
         "前端",
         "Neo-Brutalism",
@@ -43,10 +43,10 @@
     },
     {
       "name": "51 单片机实验记录",
-      "desc": "STC89C52 + Keil，从点灯到红外遥控、电机驱动，每一步都留一份能烧录的 hex 与现象记录。",
+      "desc": "STC89C52 + Keil，我从点灯到红外遥控、电机驱动，每一步都留下了一份能烧录的 hex 与现象记录。",
       "tags": [
         "嵌入式",
-        "C",
+        "C语言",
         "硬件"
       ],
       "url": "#",
@@ -54,11 +54,11 @@
       "year": "2026"
     },
     {
-      "name": "数据科学练习册",
-      "desc": "Pandas / NumPy / 可视化练手合集，配真实数据集与可复现 notebook。",
+      "name": "网站访问统计",
+      "desc": "在建立好个人博客网页之后先后引入评论功能和访问统计，水到渠成。",
       "tags": [
-        "Python",
-        "数据分析"
+        "GoatCounter",
+        "访问统计"
       ],
       "url": "#",
       "color": "#FDE047",
