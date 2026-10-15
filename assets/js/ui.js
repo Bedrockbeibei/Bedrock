@@ -35,9 +35,26 @@
     if (s < 2592000) return Math.floor(s / 86400) + ' 天前';
     return fmtTime(ts).slice(0, 10);
   }
+  /* 预计阅读时长。
+     旧算法是"正文字符数 / 350"，问题很多：
+       · Markdown 符号（# * | > 等）、行内代码、链接地址都按字符计入了
+       · 英文按"一个字母一字符"计，一篇英文文章会被严重高估
+       · 350 字/分钟偏慢，短文一律四舍五入成"2 分钟"，指标等于没有
+     现在：代码块/行内代码/图片/HTML/Markdown 符号都不计，
+     中文按 400 字/分钟、英文按 220 词/分钟，取两者相加。 */
+  var RE_CJK = /[\u3400-\u9fff\uf900-\ufaff\u3040-\u30ff\uac00-\ud7af]/g;
   function readMinutes(body) {
-    var n = String(body || '').replace(/```[\s\S]*?```/g, '').length;
-    return Math.max(1, Math.round(n / 350));
+    var text = String(body || '')
+      .replace(/```[\s\S]*?```/g, ' ')        // 代码块不计
+      .replace(/`[^`]*`/g, ' ')               // 行内代码不计
+      .replace(/!\[[^\]]*\]\([^)]*\)/g, ' ')  // 图片不计
+      .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')// 链接只留文字
+      .replace(/<[^>]+>/g, ' ')               // HTML 标签不计
+      .replace(/[#>*_~=`\-|]|\s+/g, ' ');     // Markdown 符号和空白不计
+    var cjk = (text.match(RE_CJK) || []).length;
+    var words = (text.replace(RE_CJK, ' ').match(/[A-Za-z0-9][A-Za-z0-9'._-]*/g) || []).length;
+    var mins = cjk / 400 + words / 220;
+    return Math.max(1, Math.round(mins));
   }
   function rnd(min, max) { return Math.random() * (max - min) + min; }
 
@@ -112,7 +129,7 @@
           '<p class="text-sm font-medium leading-relaxed mb-4 line-clamp-3">' + esc(p.excerpt || stripMd(p.body).slice(0, 90)) + '</p>' +
           '<div class="flex flex-wrap items-center justify-between gap-2 text-xs font-bold border-t-2 border-black pt-3">' +
             '<span class="flex items-center gap-2"><span><i class="ri-calendar-line"></i> ' + fmtDate(p.createdAt) + '</span>' + viewsChip(p.slug) + '</span>' +
-            '<span><i class="ri-timer-line"></i> ' + mins + ' 分钟</span>' +
+            '<span title="预计阅读时长"><i class="ri-book-read-line"></i> 约 ' + mins + ' 分钟</span>' +
             '<span class="underline">阅读全文 <i class="ri-arrow-right-line"></i></span>' +
           '</div>' +
         '</div>' +
@@ -384,7 +401,7 @@
         '<h1 class="font-display text-3xl sm:text-4xl lg:text-5xl leading-tight mb-4">' + esc(p.title) + '</h1>' +
         '<div class="flex flex-wrap items-center gap-3 text-sm font-bold border-y-2 border-black py-3 mb-6">' +
           '<span><i class="ri-calendar-line"></i> ' + fmtDate(p.createdAt) + '</span>' +
-          '<span><i class="ri-timer-line"></i> 约 ' + readMinutes(p.body) + ' 分钟</span>' +
+          '<span title="预计阅读时长"><i class="ri-book-read-line"></i> 约 ' + readMinutes(p.body) + ' 分钟</span>' +
           viewsChip(p.slug) +
           (p.updatedAt && p.updatedAt !== p.createdAt ? '<span><i class="ri-refresh-line"></i> 更新于 ' + fmtDate(p.updatedAt) + '</span>' : '') +
           '<span class="ml-auto bg-sun border-2 border-black px-2 py-0.5 rotate-[-1deg]">' + esc(p.slug) + '</span>' +

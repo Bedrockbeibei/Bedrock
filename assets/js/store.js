@@ -202,8 +202,26 @@
     site: null,       // 站点资料（可能来自 content/site.json）
     source: 'demo',   // 'github' | 'local' | 'demo'
     loaded: false,
-    deploying: false  // 是否有改动正在等待 Pages 重建
+    deploying: false, // 有「已提交、等 Pages 发布」的改动
+    localOnly: 0      // 有「只存在本机浏览器、没上传过」的草稿
   };
+
+  /* 覆盖层条目分两种，状态判断必须分开，否则会互相拖死：
+     { post, ts }            —— 已提交到 GitHub，等 Pages 发布（deploying）
+     { post, ts, local:true }—— 只存了本机，从没上传过（localOnly）
+     旧代码把两者混在一起，导致：点过「存本地草稿」后，
+     检查部署会永远等一份永远不会出现的远端数据，"等待 Pages 重建"再也消不掉。 */
+  function refreshOverlayFlags() {
+    var ov = lsGet(K.overlay, { items: {} });
+    var pending = 0, local = 0;
+    Object.keys(ov.items || {}).forEach(function (slug) {
+      var it = ov.items[slug];
+      if (!it) return;
+      if (it.local) local++; else pending++;
+    });
+    state.deploying = pending > 0;
+    state.localOnly = local;
+  }
 
   /* ---------------- 文章加载 ---------------- */
   function loadAll(force) {
@@ -259,10 +277,8 @@
         map[slug] = item.post;
       });
       state.posts = Object.keys(map).map(function (k) { return map[k]; });
-      state.deploying = true;
-    } else {
-      state.deploying = false;
     }
+    refreshOverlayFlags();
     sortPosts();
     return state.posts;
   }
@@ -342,12 +358,15 @@
   }
 
   // 本地覆盖层：作者保存后立刻可见，不等 Pages 重建
-  function putOverlay(post) {
+  // opts.local = true 表示"只存本机、从没上传过"（未登录时的草稿）
+  function putOverlay(post, opts) {
     var ov = lsGet(K.overlay, { ts: Date.now(), items: {} });
     ov.ts = Date.now();
-    ov.items[post.slug] = { post: post, ts: Date.now() };
+    var item = { post: post, ts: Date.now() };
+    if (opts && opts.local) item.local = true;
+    ov.items[post.slug] = item;
     lsSet(K.overlay, ov);
-    state.deploying = true;
+    refreshOverlayFlags();
   }
   function removeOverlay(slug, hardDelete) {
     var ov = lsGet(K.overlay, { ts: Date.now(), items: {} });
@@ -355,10 +374,60 @@
     if (hardDelete) ov.items[slug] = { deleted: true, ts: Date.now() };
     else delete ov.items[slug];
     lsSet(K.overlay, ov);
+    refreshOverlayFlags();
   }
   function clearOverlay() {
     lsDel(K.overlay);
-    state.deploying = false;
+    refreshOverlayFlags();
+  }
+
+  /* 把覆盖层里的文章吸收进内存列表。
+     用于"远端已确认包含这些内容"之后——直接清掉覆盖层会让文章从
+     作者视野里消失（要等刷新才回来），先吸收再清就不会闪。 */
+  function absorbOverlay() {
+    var ov = lsGet(K.overlay, { items: {} });
+    if (!ov.items || !Object.keys(ov.items).length) return;
+    var map = {};
+    state.posts.forEach(function (p) { map[p.slug] = p; });
+    Object.keys(ov.items).forEach(function (slug) {
+      var it = ov.items[slug];
+      if (!it) return;
+      if (it.deleted) { delete map[slug]; return; }
+      map[slug] = it.post;
+    });
+    state.posts = Object.keys(map).map(function (k) { return map[k]; });
+    sortPosts();
+  }
+
+  /* 提交成功后调用：覆盖层里的东西都已经进仓库了，
+     把 local 标记摘掉，之后"检查部署"才会去等它们。 */
+  function markOverlayCommitted() {
+    var ov = lsGet(K.overlay, null);
+    if (!ov || !ov.items) { refreshOverlayFlags(); return; }
+    var changed = false;
+    Object.keys(ov.items).forEach(function (slug) {
+      var it = ov.items[slug];
+      if (it && it.local) { delete it.local; changed = true; }
+    });
+    if (changed) lsSet(K.overlay, ov);
+    refreshOverlayFlags();
+  }
+
+  /* 确认远端已发布的条目从覆盖层移除；从没上传过的本地草稿保留。 */
+  function dropDeployed() {
+    var ov = lsGet(K.overlay, null);
+    if (ov && ov.items) {
+      var kept = {};
+      Object.keys(ov.items).forEach(function (slug) {
+        var it = ov.items[slug];
+        if (it && !it.local) return;   // 已确认落库，移除
+        kept[slug] = it;               // 本地草稿留下
+      });
+      if (Object.keys(kept).length) { ov.items = kept; lsSet(K.overlay, ov); }
+      else lsDel(K.overlay);
+    }
+    absorbOverlay();
+    refreshOverlayFlags();
   }
 
   // 组装要提交的完整数据
@@ -389,35 +458,94 @@
     var payload = buildPayload();
     return gh.readRepoFile(CFG.postsPath).then(function (remote) {
       // 远端可能有别人（或别的设备）新增的文章，做一次合并
+      var finalList = payload.posts;
       if (remote.data && Array.isArray(remote.data.posts)) {
         var map = {};
         remote.data.posts.forEach(function (p) { map[p.slug] = p; });
         payload.posts.forEach(function (p) { map[p.slug] = p; });
-        payload.posts = Object.keys(map).map(function (k) { return map[k]; });
-        sortList(payload.posts);
+        finalList = Object.keys(map).map(function (k) { return map[k]; });
+        sortList(finalList);
       }
-      return gh.writeRepoFile(CFG.postsPath, payload, remote.sha, message || 'post: ' + new Date().toLocaleString('zh-CN'));
+      payload.posts = finalList;
+      return gh.writeRepoFile(CFG.postsPath, payload, remote.sha, message || 'post: ' + new Date().toLocaleString('zh-CN'))
+        .then(function (sha) {
+          lsSet('bedrock_last_commit_v1', { sha: sha, ts: Date.now() });
+          // 作者视野立刻跟上仓库内容。否则再打开编辑器还是提交前的旧版本，
+          // 在旧版本上改完又存一遍，git 历史里就会多出一次看似"回滚"的提交
+          state.posts = finalList.slice();
+          sortPosts();
+          markOverlayCommitted();
+          return sha;
+        });
     }).then(function (sha) {
-      lsSet('bedrock_last_commit_v1', { sha: sha, ts: Date.now() });
+      // 订阅源跟着文章一起更新（失败不拖累文章保存）
+      commitFeed().catch(function (e) {
+        try { console.warn('[bedrock] feed.json 同步失败（不影响文章）：' + (e && e.message)); } catch (_) {}
+      });
       return sha;
     });
   }
 
-  // 检查 Pages 是否已经重建完成：远端数据是否已包含本地改动
+  /* 检查发布状态，分两层：
+     1) 仓库层——我提交的内容落库了吗。登录时走 GitHub API，秒回且没有缓存；
+        没登录时只能读 Pages CDN，而 GitHub Pages 的 Cache-Control 是 max-age=600，
+        所以访客视角最多可能滞后 10 分钟，这是 CDN 策略不是故障。
+     2) 发布层——Pages 构建完了吗（登录时查 Pages 构建状态）。
+     只有"已提交"的条目参与等待；只存在本机的草稿不参与——它本来就没上传，
+     旧代码把它混在一起等，导致"等待 Pages 重建"永远消不掉。 */
+  function pendingOverlayItems() {
+    var ov = lsGet(K.overlay, { items: {} });
+    var out = [];
+    Object.keys(ov.items || {}).forEach(function (slug) {
+      var it = ov.items[slug];
+      if (it && !it.local) out.push({ slug: slug, it: it });
+    });
+    return out;
+  }
+
+  function verifyAgainstRemote(list) {
+    var pending = pendingOverlayItems();
+    if (!pending.length) return true;
+    return pending.every(function (x) {
+      if (x.it.deleted) return !list.some(function (p) { return p.slug === x.slug; });
+      var rp = list.filter(function (p) { return p.slug === x.slug; })[0];
+      return rp && rp.updatedAt === x.it.post.updatedAt;
+    });
+  }
+
+  // Pages 构建状态：built = 访客已经能看到；还在 building/queued = 再等等
+  function pagesPublished() {
+    if (!gh.getToken() || !gh.pagesBuild) return Promise.resolve(true);
+    return gh.pagesBuild().then(function (b) {
+      if (!b) return true;                       // 拿不到构建状态就不卡作者
+      var st = String(b.status || '').toLowerCase();
+      return st !== 'building' && st !== 'queued' && st !== 'requested';
+    }).catch(function () { return true; });
+  }
+
   function checkDeployed() {
-    return gh.fetchJson(CFG.postsPath).then(function (data) {
-      var list = normalize(data);
-      var ov = lsGet(K.overlay, { items: {} });
-      var keys = Object.keys(ov.items || {});
-      if (!keys.length) { clearOverlay(); return true; }
-      var done = keys.every(function (slug) {
-        var it = ov.items[slug];
-        if (it.deleted) return !list.some(function (p) { return p.slug === slug; });
-        var rp = list.filter(function (p) { return p.slug === slug; })[0];
-        return rp && rp.updatedAt === it.post.updatedAt;
-      });
-      if (done) { clearOverlay(); state.deploying = false; }
-      return done;
+    if (!pendingOverlayItems().length) {
+      refreshOverlayFlags();
+      return Promise.resolve(true);
+    }
+    var token = gh.getToken();
+    var readRemote = token
+      ? gh.readRepoFile(CFG.postsPath).then(function (r) { return r.data; }).catch(function () { return null; })
+      : gh.fetchJson(CFG.postsPath).catch(function () { return null; });
+    return readRemote.then(function (data) {
+      if (!data) return false;                                  // 读不到：维持"还没生效"
+      if (!verifyAgainstRemote(normalize(data))) return false;  // 仓库里还没有
+      if (token) {
+        // 仓库里有了，但 Pages 还没发布给访客：继续等，覆盖层先留着，
+        // 免得"横幅消失了、提示还在说还没生效"
+        return pagesPublished().then(function (published) {
+          if (!published) return false;
+          dropDeployed();
+          return true;
+        });
+      }
+      dropDeployed();
+      return true;
     }).catch(function () { return false; });
   }
 
@@ -475,6 +603,50 @@
     });
   }
 
+  /* ---------------- 订阅源 feed.json ----------------
+     文章保存后自动跟着刷新，省得"网页是新的、RSS 是旧的"。
+     草稿不进订阅源。失败不影响文章保存（调用方会 catch）。 */
+  function postUrl(slug) {
+    try {
+      var base = global.location.origin + global.location.pathname.replace(/index\.html$/, '');
+      return base + '#/post/' + slug;
+    } catch (e) { return '#/post/' + slug; }
+  }
+
+  function buildFeed() {
+    var site = mergeSite();
+    var items = state.posts.filter(function (p) { return p.status !== 'draft'; })
+      .slice()
+      .sort(function (a, b) { return new Date(b.createdAt) - new Date(a.createdAt); })
+      .map(function (p) {
+        return {
+          id: p.id,
+          title: p.title,
+          summary: p.excerpt || '',
+          tags: p.tags || [],
+          date_modified: p.updatedAt || p.createdAt,
+          url: postUrl(p.slug)
+        };
+      });
+    return {
+      version: 'https://jsonfeed.org/version/1.1',
+      title: (site.title || 'Bedrock') + ' 个人博客',
+      description: String(site.bio || '').split('\n')[0] || '个人博客',
+      language: 'zh-CN',
+      items: items
+    };
+  }
+
+  function commitFeed() {
+    if (!gh.getToken()) return Promise.resolve('');
+    var feed = buildFeed();
+    return gh.readRepoFile('feed.json').then(function (r) {
+      return gh.writeRepoFile('feed.json', feed, r.sha, 'chore(feed): 同步订阅源');
+    }).catch(function () {
+      return gh.writeRepoFile('feed.json', feed, null, 'chore(feed): 同步订阅源');
+    });
+  }
+
   /* ---------------- 昵称（访客身份） ---------------- */
   function getNick() { try { return global.localStorage.getItem(K.nick) || ''; } catch (e) { return ''; } }
   function setNick(n) { try { global.localStorage.setItem(K.nick, n); } catch (e) {} }
@@ -489,6 +661,7 @@
     getComments: getComments, addComment: addComment, delComment: delComment,
     getGuestbook: getGuestbook, addGuestbook: addGuestbook, delGuestbook: delGuestbook,
     loadSite: loadSite, mergeSite: mergeSite, saveSiteLocal: saveSiteLocal, commitSite: commitSite,
+    buildFeed: buildFeed, commitFeed: commitFeed,
     getNick: getNick, setNick: setNick,
     isAuthor: isAuthor,
     state: state,

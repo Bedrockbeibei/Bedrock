@@ -31,19 +31,22 @@
       '</div>' +
     '</div>' +
 
-    /* ---------- 状态面板 ---------- */
-    '<div class="grid sm:grid-cols-3 gap-4 mb-8">' +
-      statusCard('身份', author ? '作者 · ' + esc(user.login) : (user.login ? '访客 · ' + esc(user.login) : '未登录'),
-        author ? '#A3E635' : '#FB7185', author ? 'ri-shield-check-fill' : 'ri-user-line') +
-      statusCard('数据源', store.state.source === 'demo' ? '内置示例' : '仓库文件',
-        store.state.source === 'demo' ? '#FDE047' : '#38BDF8', 'ri-database-2-line') +
-      statusCard('部署状态', store.state.deploying ? '等待 Pages 重建…' : '已同步',
-        store.state.deploying ? '#FDE047' : '#A3E635', store.state.deploying ? 'ri-time-line' : 'ri-check-double-line') +
-    '</div>' +
+  /* ---------- 状态面板 ---------- */
+  '<div class="grid sm:grid-cols-3 gap-4 mb-8">' +
+    statusCard('身份', author ? '作者 · ' + esc(user.login) : (user.login ? '访客 · ' + esc(user.login) : '未登录'),
+      author ? '#A3E635' : '#FB7185', author ? 'ri-shield-check-fill' : 'ri-user-line') +
+    statusCard('数据源', store.state.source === 'demo' ? '内置示例' : '仓库文件',
+      store.state.source === 'demo' ? '#FDE047' : '#38BDF8', 'ri-database-2-line') +
+    statusCard('部署状态',
+      store.state.deploying ? '等待 Pages 发布…' : (store.state.localOnly ? store.state.localOnly + ' 篇本地草稿' : '已同步'),
+      store.state.deploying ? '#FDE047' : (store.state.localOnly ? '#FB7185' : '#A3E635'),
+      store.state.deploying ? 'ri-time-line' : (store.state.localOnly ? 'ri-save-3-line' : 'ri-check-double-line')) +
+  '</div>' +
 
-    (author ? '' : '<div class="nb-note !bg-coral mb-6"><i class="ri-lock-line"></i><span><b>当前是访客身份，只能浏览。</b>点右上角「登录」，用站长的 GitHub 账号登录后才能在线写文章。</span></div>') +
+  (author ? '' : '<div class="nb-note !bg-coral mb-6"><i class="ri-lock-line"></i><span><b>当前是访客身份，只能浏览。</b>点右上角「登录」，用站长的 GitHub 账号登录后才能在线写文章。</span></div>') +
 
-    (store.state.deploying ? '<div class="nb-note !bg-sun mb-6"><i class="ri-time-line"></i><span>有改动正在等待 GitHub Pages 重建（通常 1–2 分钟）。你自己的浏览器里已经能看到最新内容。重建完成后点上面的「检查部署」清除提示。</span></div>' : '') +
+  (store.state.deploying ? '<div class="nb-note !bg-sun mb-6"><i class="ri-time-line"></i><span>有改动已提交，正在等 GitHub Pages 发布给访客（通常 1–2 分钟）。你自己的浏览器里已经能看到最新内容。发布完成后点上面的「检查部署」清除提示。</span></div>' : '') +
+  (store.state.localOnly ? '<div class="nb-note !bg-coral mb-6"><i class="ri-save-3-line"></i><span>有 <b>' + store.state.localOnly + '</b> 篇草稿只存在这台浏览器里，还没上传到 GitHub。打开它点「保存到 GitHub」就会同步；换设备或清缓存前记得先上传。</span></div>' : '') +
 
     (lastCommit ? '<div class="text-xs font-bold mb-6 opacity-70">最近一次提交：<code>' + esc(String(lastCommit.sha || '').slice(0, 10)) + '</code> · ' + ui.ago(lastCommit.ts) + '</div>' : '') +
 
@@ -493,7 +496,9 @@
   function saveToGithub() {
     var post = collectForm();
     if (!post) return;
-    store.putOverlay(post);
+    // 先按"本地"写入：提交成功会被 markOverlayCommitted 翻成"已提交"；
+    // 万一提交失败，它乖乖留在"本地草稿"状态，不会假装在等 Pages 发布
+    store.putOverlay(post, { local: true });
     if (!gh.getToken()) {
       ui.toast('未登录：已保存到本地，登录后才能推送到 GitHub', 'warn');
       global.Bedrock.app.closeModal('modal-editor');
@@ -507,20 +512,37 @@
       global.Bedrock.app.closeModal('modal-editor');
       global.Bedrock.app.rerender();
     }).catch(function (e) {
-      ui.toast('提交失败：' + e.message, 'err');
+      ui.toast('提交失败：' + e.message + '（已存本地，修复后点「保存到 GitHub」重试）', 'err');
     }).then(function () {
       btn.disabled = false; btn.innerHTML = '<i class="ri-upload-2-line"></i> 保存到 GitHub';
     });
   }
 
-  function saveLocalDraft() {
+  /* 存为草稿：登录时真的上传（status=draft，访客看不到），
+     没登录才退而求其次只存本机——并且明确告诉用户"没上传"，
+     不会再出现"以为存了、其实只在当前浏览器"的情况。 */
+  function saveDraft() {
     var post = collectForm();
     if (!post) return;
     post.status = 'draft';
-    store.putOverlay(post);
-    ui.toast('已存为本地草稿（创作台可见）', 'ok');
-    global.Bedrock.app.closeModal('modal-editor');
-    global.Bedrock.app.rerender();
+    store.putOverlay(post, { local: true });
+    if (!gh.getToken()) {
+      ui.toast('未登录：已存为本地草稿（仅这台浏览器可见）。登录后点「保存到 GitHub」即可同步', 'warn');
+      global.Bedrock.app.closeModal('modal-editor');
+      global.Bedrock.app.rerender();
+      return;
+    }
+    var btn = document.getElementById('ed-draft');
+    if (btn) { btn.disabled = true; btn.innerHTML = '<i class="ri-loader-4-line"></i> 提交中…'; }
+    store.commitPosts('draft: ' + post.title).then(function () {
+      ui.toast('草稿已保存到 GitHub（访客看不到），1–2 分钟后生效', 'ok');
+      global.Bedrock.app.closeModal('modal-editor');
+      global.Bedrock.app.rerender();
+    }).catch(function (e) {
+      ui.toast('提交失败：' + ((e && e.message) || e) + '（已存本地草稿，可重试）', 'err');
+    }).then(function () {
+      if (btn) { btn.disabled = false; btn.innerHTML = '<i class="ri-save-3-line"></i> 存为草稿'; }
+    });
   }
 
   function downloadCurrent() {
@@ -542,7 +564,11 @@
       store.commitPosts('delete post: ' + p.title).then(function () {
         ui.toast('已删除并同步到 GitHub', 'ok');
       }).catch(function (e) {
-        ui.toast('删除同步失败：' + e.message, 'err');
+        // 删除没同步成功：撤掉本地"已删除"标记，文章回来，状态回到"本地未同步"
+        store.removeOverlay(slug, false);
+        store.state.posts = store.state.posts.concat([p]);
+        store.sortList(store.state.posts);
+        ui.toast('删除同步失败：' + e.message + '（文章已恢复，可重试）', 'err');
       }).then(function () { global.Bedrock.app.reload(); });
     } else {
       global.Bedrock.app.rerender();
@@ -604,7 +630,7 @@
   global.Bedrock = global.Bedrock || {};
   global.Bedrock.editor = {
     viewAdmin: viewAdmin, openEditor: openEditor, initEditorUI: initEditorUI,
-    saveToGithub: saveToGithub, saveLocalDraft: saveLocalDraft, downloadCurrent: downloadCurrent,
+    saveToGithub: saveToGithub, saveDraft: saveDraft, downloadCurrent: downloadCurrent,
     deletePost: deletePost, exportAll: exportAll, importJson: importJson, saveSite: saveSite,
     detectGiscus: detectGiscus, saveGiscus: saveGiscus,
     checkAnalytics: checkAnalytics, saveAnalytics: saveAnalytics
