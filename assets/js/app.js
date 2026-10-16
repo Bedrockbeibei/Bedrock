@@ -249,7 +249,7 @@
     });
     modal.querySelector('.nb-modal-mask').addEventListener('click', function () { closeModal('modal-editor'); });
     document.getElementById('ed-save').addEventListener('click', editor.saveToGithub);
-    document.getElementById('ed-draft-local').addEventListener('click', editor.saveLocalDraft);
+    document.getElementById('ed-draft').addEventListener('click', editor.saveDraft);
     document.getElementById('ed-download').addEventListener('click', editor.downloadCurrent);
     editor.initEditorUI();
   }
@@ -307,7 +307,13 @@
         case 'check-deploy':
           ui.toast('正在检查 GitHub Pages…', 'info');
           store.checkDeployed().then(function (done) {
-            ui.toast(done ? '已同步线上，本地临时改动已清除' : '还没生效，Pages 一般 1–2 分钟，再等等', done ? 'ok' : 'warn');
+            if (done) {
+              ui.toast(store.state.localOnly
+                ? '已同步线上（还有 ' + store.state.localOnly + ' 篇本地草稿未上传）'
+                : '已同步线上，本地临时改动已清除', 'ok');
+            } else {
+              ui.toast('还没生效，Pages 一般 1–2 分钟，再等等', 'warn');
+            }
             render();
           }); break;
         case 'import-json': editor.importJson(); break;

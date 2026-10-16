@@ -158,6 +158,15 @@
     });
   }
 
+  /* Pages 最新一次构建状态（status: built / building / queued / errored …）。
+     用来回答"访客现在能看到吗"——比读 CDN 缓存准，也秒回。
+     拿不到（没权限 / Pages 没开）就返回 null，调用方自行降级。 */
+  function pagesBuild() {
+    return ghFetch('/repos/' + CFG.owner + '/' + CFG.repo + '/pages/builds/latest')
+      .then(function (j) { return j || null; })
+      .catch(function () { return null; });
+  }
+
   function writeRepoFile(path, obj, sha, message) {
     var content = encodeBase64(JSON.stringify(obj, null, 2));
     var body = { message: message || 'chore(bedrock): update ' + path, content: content, branch: CFG.branch };
@@ -210,6 +219,6 @@
     startOAuth: startOAuth, exchangeCode: exchangeCode,
     readRepoFile: readRepoFile, writeRepoFile: writeRepoFile,
     fetchJson: fetchJson, encodeBase64: encodeBase64, decodeBase64: decodeBase64,
-    ghFetch: ghFetch, graphql: graphql
+    ghFetch: ghFetch, graphql: graphql, pagesBuild: pagesBuild
   };
 })(window);
