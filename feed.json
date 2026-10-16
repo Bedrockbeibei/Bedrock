@@ -1,47 +1,51 @@
 {
   "version": "https://jsonfeed.org/version/1.1",
   "title": "沉潜·Bedrock 个人博客",
-  "description": "记录一个信息科学技术类大一学生的硬核成长路径。",
+  "description": "北京理工大学睿信书院 · 信息科学技术类 2026 级。",
   "language": "zh-CN",
-  "home_page_url": "https://bedrockbeibei.github.io/Bedrock/",
-  "feed_url": "https://bedrockbeibei.github.io/Bedrock/feed.json",
   "items": [
     {
-      "id": "https://bedrockbeibei.github.io/Bedrock/#/post/eggs-for-each-generation",
-      "url": "https://bedrockbeibei.github.io/Bedrock/#/post/eggs-for-each-generation",
+      "id": "p-mv9b3pbw",
       "title": "一代人有一代人的鸡蛋要领",
       "summary": "免费从来不是便宜，是便宜换了个样子",
       "tags": [
         "思考"
       ],
-      "date_published": "2026-10-15T08:58:26.684Z",
-      "date_modified": "2026-10-15T15:32:52.508Z"
+      "date_modified": "2026-10-15T15:32:52.508Z",
+      "url": "https://bedrockbeibei.github.io/Bedrock/#/post/eggs-for-each-generation"
     },
     {
-      "id": "https://bedrockbeibei.github.io/Bedrock/#/post/thoughts-after-sorts",
-      "url": "https://bedrockbeibei.github.io/Bedrock/#/post/thoughts-after-sorts",
+      "id": "p-muo9e3on",
       "title": "把博客访问记录做好后的感悟",
       "summary": "最近忙而不知为何而忙，趁着国庆放假第一天，赶紧想想我到底要做什么",
       "tags": [
         "思考"
       ],
-      "date_published": "2026-09-30T15:27:22.918Z",
-      "date_modified": "2026-10-15T15:18:21.444Z"
+      "date_modified": "2026-10-15T13:44:01.366Z",
+      "url": "https://bedrockbeibei.github.io/Bedrock/#/post/把博客访问记录做好后的感悟"
     },
     {
-      "id": "https://bedrockbeibei.github.io/Bedrock/#/post/why-bedrock-on-github",
-      "url": "https://bedrockbeibei.github.io/Bedrock/#/post/why-bedrock-on-github",
+      "id": "p-muo9e3on",
+      "title": "把博客访问记录做好后的感悟",
+      "summary": "最近忙而不知为何而忙，趁着国庆放假第一天，赶紧想想我到底要做什么",
+      "tags": [
+        "思考"
+      ],
+      "date_modified": "2026-10-15T15:18:21.444Z",
+      "url": "https://bedrockbeibei.github.io/Bedrock/#/post/thoughts-after-sorts"
+    },
+    {
+      "id": "demo-1",
       "title": "为什么我把博客建在 GitHub 上，而不是买服务器？",
       "summary": "零成本、零运维、文章只是数据文件。",
       "tags": [
         "技术"
       ],
-      "date_published": "2026-09-20T10:00:00+08:00",
-      "date_modified": "2026-10-15T11:09:14.745Z"
+      "date_modified": "2026-10-15T11:09:14.745Z",
+      "url": "https://bedrockbeibei.github.io/Bedrock/#/post/why-bedrock-on-github"
     },
     {
-      "id": "https://bedrockbeibei.github.io/Bedrock/#/post/51-mcu",
-      "url": "https://bedrockbeibei.github.io/Bedrock/#/post/51-mcu",
+      "id": "demo-2",
       "title": "51 单片机第一课",
       "summary": "一个普通大一新生的普中 HC6800-ES V2.0 + STC89C52 实测，感受到其功能强大，但是终究不适合入门。",
       "tags": [
@@ -49,12 +53,11 @@
         "51 单片机",
         "硬件"
       ],
-      "date_published": "2026-09-15T14:00:00+08:00",
-      "date_modified": "2026-09-30T12:49:34.132Z"
+      "date_modified": "2026-09-30T12:49:34.132Z",
+      "url": "https://bedrockbeibei.github.io/Bedrock/#/post/51-mcu"
     },
     {
-      "id": "https://bedrockbeibei.github.io/Bedrock/#/post/freshman-roadmap-ai",
-      "url": "https://bedrockbeibei.github.io/Bedrock/#/post/freshman-roadmap-ai",
+      "id": "demo-3",
       "title": "大一选方向：AI / 数据科学要打的地基清单",
       "summary": "信息科学技术类大一，想往 AI 走，到底先学什么？一份按优先级排序的地基清单，附带我自己的进度。",
       "tags": [
@@ -62,8 +65,8 @@
         "AI",
         "学习方法"
       ],
-      "date_published": "2026-09-08T20:00:00+08:00",
-      "date_modified": "2026-09-30T12:55:02.116Z"
+      "date_modified": "2026-09-30T12:55:02.116Z",
+      "url": "https://bedrockbeibei.github.io/Bedrock/#/post/freshman-roadmap-ai"
     }
   ]
 }
